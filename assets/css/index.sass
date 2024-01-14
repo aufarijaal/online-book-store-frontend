@@ -1,0 +1,66 @@
+@use 'utilities'
+@use 'variables'
+@use 'animations'
+
+.task-list-wrapper
+  max-height: 600px
+  overflow-y: auto
+
+.task-item
+  cursor: pointer
+  transition: background-color 300ms linear
+  &:hover
+    background-color: variables.$light
+
+.logout-button:hover
+  background-color: variables.$light
+.cart-icon
+  color: variables.$success
+
+.nav-pills .nav-item .nav-link.active
+  background-color: variables.$success
+
+.address-list .address-item:hover
+  background-color: variables.$light
+  cursor: pointer
+
+.custom-modal-backdrop
+  position: fixed
+  top: 0
+  left: 0
+  z-index: 10
+  background-color: rgba(0, 0, 0, 0.3)
+  height: 100vh
+  width: 100%
+  display: grid
+  place-items: center
+
+  .custom-modal
+    background-color: white
+    width: 500px
+    padding: 1.5rem
+    border-radius: 0.4rem
+
+    .custom-modal__header
+      display: flex
+      align-items: center
+      justify-content: space-between
+
+    .custom-modal__body
+      margin: 20px 0
+
+    .custom-modal__footer
+      display: flex
+      align-items: center
+      justify-content: end
+      gap: 10px
+
+.cart-info-item--not-available-overlay
+  position: absolute
+  display: flex
+  justify-content: center
+  align-items: center
+  width: 100%
+  height: 100%
+  inset: 0
+  background-color: red
