@@ -8,11 +8,11 @@ onMounted(() => {});
     style="width: 280px"
   >
     <a
-      href="/"
+      href="/admin"
       class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none gap-3"
     >
-      <img width="32" height="32" src="/favicon.ico" alt="Brand Logo" />
-      <span class="fs-5 fw-bold">BookStore Admin</span>
+      <img width="32" height="32" src="/logo.svg" alt="Brand Logo" />
+      <span class="fs-5 fw-bold">Garadia Admin</span>
     </a>
     <hr />
     <ul class="nav nav-pills flex-column mb-auto gap-2">

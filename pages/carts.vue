@@ -2,6 +2,12 @@
 import toRupiah from "@develoka/angka-rupiah-js";
 import { useMainStore } from "~/stores/useMainStore";
 
+const auth = useAuthStore();
+
+definePageMeta({
+  middleware: ["authenticated", "regular-user"],
+});
+
 useHead({
   title: "Your Cart",
 });

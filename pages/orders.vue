@@ -1,6 +1,12 @@
 <script lang="ts" setup>
 import toRupiah from "@develoka/angka-rupiah-js";
 
+const auth = useAuthStore();
+
+definePageMeta({
+  middleware: ["authenticated", "regular-user"],
+});
+
 useHead({
   title: `My Orders`,
   script: [
@@ -41,7 +47,7 @@ onMounted(async () => {
 });
 </script>
 <template>
-  <div id="my-orders-page">
+  <div id="orders-page">
     <main class="container px-3 px-sm-0" style="padding: 100px 0">
       <!-- Alert -->
       <div class="alert alert-dismissible alert-danger" v-show="errorMsg">
@@ -157,6 +163,7 @@ onMounted(async () => {
             </button>
 
             <button
+              disabled
               class="btn btn-primary"
               @click="() => {}"
               v-if="order.status === 'paid' || order.status === 'expired'"

@@ -198,12 +198,19 @@ onMounted(async () => {
           <div class="mb-3">
             <div class="input-group">
               <span class="input-group-text fw-bold">Country</span>
-              <input
+              <!-- <input
                 type="text"
                 class="form-control"
                 id="country"
                 aria-describedby="countryHelp"
                 required
+                v-model="form.country"
+              /> -->
+              <CountryCodeSelector
+                required
+                class="form-control"
+                id="country"
+                aria-describedby="countryHelp"
                 v-model="form.country"
               />
             </div>

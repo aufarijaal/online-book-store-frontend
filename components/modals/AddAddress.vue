@@ -146,14 +146,22 @@ async function submit() {
 
               <div class="mb-3">
                 <label for="country" class="form-label">Country</label>
-                <input
+                <!-- <input
                   type="text"
                   class="form-control"
                   id="country"
                   aria-describedby="countryHelp"
                   required
                   v-model="form.country"
+                /> -->
+                <CountryCodeSelector
+                  required
+                  class="form-control"
+                  id="country"
+                  aria-describedby="countryHelp"
+                  v-model="form.country"
                 />
+
                 <div
                   id="countryHelp"
                   class="form-text text-xs text-danger"

@@ -26,4 +26,12 @@ export default defineNuxtConfig({
     },
   },
   css: ["~/assets/css/bootstrap.min.css", "~/assets/css/index.sass"],
+  vite: {
+    vue: {
+      script: {
+        defineModel: true,
+        propsDestructure: true,
+      },
+    },
+  },
 });

@@ -1,11 +1,13 @@
 <script lang="ts" setup>
+const auth = useAuthStore();
+
 definePageMeta({
   name: "AccountPage",
-  middleware: ["auth"],
+  middleware: ["authenticated", "regular-user"],
 });
 
 useHead({
-  title: "My Account · BookStore",
+  title: "My Account · Garadia",
 });
 
 const route = useRoute();

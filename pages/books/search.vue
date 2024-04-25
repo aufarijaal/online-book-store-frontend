@@ -1,6 +1,12 @@
 <script lang="ts" setup>
 import toRupiah from "@develoka/angka-rupiah-js";
 
+const auth = useAuthStore();
+
+definePageMeta({
+  middleware: ["public-or-not-admin"],
+});
+
 const route = useRoute();
 const router = useRouter();
 const query = ref(route.query.q);

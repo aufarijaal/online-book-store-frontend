@@ -4,9 +4,11 @@ interface AuthorResponse {
   data: DataResponse<Author>;
 }
 
+const auth = useAuthStore();
+
 definePageMeta({
   layout: "admin",
-  middleware: ["is-admin"],
+  middleware: ["authenticated", "admin"],
 });
 
 useHead({
@@ -341,6 +343,8 @@ onMounted(async () => {
           Showing
           {{
             authorResponse?.data.per_page! * authorResponse?.data.current_page!
+
+
           }}/{{ authorResponse?.data.total }} entries
         </div>
         <div v-else>Loading...</div>

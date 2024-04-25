@@ -4,6 +4,11 @@ import dayjs from "dayjs";
 const route = useRoute();
 const author = ref<Author>();
 const errorMsg = ref("");
+const auth = useAuthStore();
+
+definePageMeta({
+  middleware: ["public-or-not-admin"],
+});
 
 async function getAuthor() {
   await useApiFetch("/sanctum/csrf-cookie");

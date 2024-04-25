@@ -12,7 +12,6 @@ const errorMsg = ref<{
 }>();
 
 async function submit() {
-  console.log("Hello world");
   await useApiFetch("/sanctum/csrf-cookie");
 
   const result = await useApiFetch(

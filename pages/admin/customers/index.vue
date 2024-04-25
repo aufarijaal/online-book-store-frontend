@@ -4,9 +4,11 @@ interface CustomerResponse {
   data: DataResponse<Customer>;
 }
 
+const auth = useAuthStore();
+
 definePageMeta({
   layout: "admin",
-  middleware: ["is-admin"],
+  middleware: ["authenticated", "admin"],
 });
 
 useHead({
@@ -370,6 +372,8 @@ onMounted(async () => {
           {{
             customerResponse?.data.per_page! *
             customerResponse?.data.current_page!
+
+
           }}/{{ customerResponse?.data.total }} entries
         </div>
         <div v-else>Loading...</div>

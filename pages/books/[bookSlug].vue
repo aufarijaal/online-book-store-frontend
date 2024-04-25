@@ -2,16 +2,19 @@
 import dayjs from "dayjs";
 import toRupiah from "@develoka/angka-rupiah-js";
 
+definePageMeta({
+  middleware: ["public-or-not-admin"],
+});
+
 const route = useRoute();
 
 const book = ref();
 const qty = ref(1);
-const auth = useAuthStore();
 const mainStore = useMainStore();
 const errorMsg = ref("");
 
 useHead({
-  title: `BookStore · Book Detail`,
+  title: `Garadia · Book Detail`,
 });
 
 async function getBook() {

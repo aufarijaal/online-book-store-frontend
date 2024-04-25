@@ -1,7 +1,9 @@
 <script lang="ts" setup>
+const auth = useAuthStore();
+
 definePageMeta({
   layout: "admin",
-  middleware: ["is-admin"],
+  middleware: ["authenticated", "admin"],
 });
 
 useHead({
@@ -329,6 +331,8 @@ onMounted(async () => {
           Showing
           {{
             bookResponse?.data.per_page! * bookResponse?.data.current_page!
+
+
           }}/{{ bookResponse?.data.total }} entries
         </div>
         <div v-else>Loading...</div>

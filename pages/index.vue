@@ -1,8 +1,12 @@
 <script lang="ts" setup>
 import toRupiah from "@develoka/angka-rupiah-js";
 
+definePageMeta({
+  middleware: ["public-or-not-admin"],
+});
+
 useHead({
-  title: "BookStore",
+  title: "Garadia",
 });
 
 const bookResponse = ref<any>();
@@ -46,12 +50,10 @@ onMounted(async () => {
 
         <div class="row py-lg-5">
           <div class="col-lg-6 col-md-8 mx-auto">
-            <h1 class="fw-light">Online Book Store</h1>
+            <h1 class="fw-bold">Garadia</h1>
             <p class="lead text-muted">
-              Lorem ipsum dolor sit, amet consectetur adipisicing elit.
-              Accusamus dolore eos beatae, minus ut laudantium maxime. Aut quas
-              neque, ex expedita laudantium saepe id labore reiciendis amet unde
-              aperiam odio!
+              Enter a World of Books and Explore Our Online Bookstore for
+              Endless Reading Pleasure
             </p>
           </div>
         </div>

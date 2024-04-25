@@ -4,9 +4,11 @@ interface AddressResponse {
   data: DataResponse<Address>;
 }
 
+const auth = useAuthStore();
+
 definePageMeta({
   layout: "admin",
-  middleware: ["is-admin"],
+  middleware: ["authenticated", "admin"],
 });
 
 useHead({
@@ -372,6 +374,9 @@ onMounted(async () => {
           {{
             addressResponse?.data.per_page! *
             addressResponse?.data.current_page!
+
+
+
           }}/{{ addressResponse?.data.total }} entries
         </div>
         <div v-else>Loading...</div>

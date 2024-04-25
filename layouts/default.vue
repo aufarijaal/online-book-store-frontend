@@ -44,8 +44,8 @@ onMounted(async () => {
       >
         <div class="container-fluid">
           <div class="d-flex align-items-center gap-2">
-            <img src="/favicon.ico" height="30" />
-            <NuxtLink class="navbar-brand" to="/">BookStore</NuxtLink>
+            <img src="/logo.svg" height="30" />
+            <NuxtLink class="navbar-brand" to="/">Garadia</NuxtLink>
           </div>
           <button
             class="navbar-toggler"
@@ -86,7 +86,7 @@ onMounted(async () => {
                   <input
                     class="form-control me-2"
                     type="search"
-                    placeholder="Search book or author..."
+                    placeholder="Search book"
                     aria-label="Search"
                     v-model="q"
                   />
@@ -153,7 +153,7 @@ onMounted(async () => {
                   aria-labelledby="navbarDropdown"
                 >
                   <li>
-                    <NuxtLink to="/my-orders" class="dropdown-item">
+                    <NuxtLink to="/orders" class="dropdown-item">
                       My Orders
                     </NuxtLink>
                   </li>

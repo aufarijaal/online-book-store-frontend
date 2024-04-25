@@ -2,9 +2,11 @@
 const route = useRoute();
 const router = useRouter();
 
+const auth = useAuthStore();
+
 definePageMeta({
   layout: "admin",
-  middleware: ["is-admin"],
+  middleware: ["authenticated", "admin"],
 });
 
 useHead({

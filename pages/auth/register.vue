@@ -1,11 +1,12 @@
 <script lang="ts" setup>
-import { useAuthStore } from "~/stores/useAuthStore";
+const auth = useAuthStore();
 
 definePageMeta({
   name: "SignUpPage",
   layout: false,
   middleware: ["guest"],
 });
+
 const route = useRoute();
 const showPassword = ref(false);
 const showConfirmPassword = ref(false);
@@ -22,8 +23,6 @@ const form = ref({
   password_confirmation: "",
 });
 
-const auth = useAuthStore();
-
 function toggleShowPassword() {
   showPassword.value = !showPassword.value;
 }
@@ -39,7 +38,15 @@ async function submit() {
     errorMsg.value = result.error.value?.data.errors;
   }
 }
-onMounted(async () => {});
+
+watch(
+  () => auth.isLoggedIn,
+  () => {
+    if (auth.isLoggedIn) {
+      navigateTo(auth.user?.is_admin === "1" ? "/admin" : "/");
+    }
+  }
+);
 </script>
 
 <template>
@@ -55,7 +62,7 @@ onMounted(async () => {});
         class="mb-4 d-flex justify-content-center flex-column align-items-center"
       >
         <NuxtLink to="/">
-          <img width="86" height="86" src="/nuxt.svg" alt="nuxt logo" />
+          <img width="86" height="86" src="/logo.svg" alt="nuxt logo" />
         </NuxtLink>
         <div class="text-center text-3xl font-weight-bold mb-3">Sign up</div>
         <p class="text-muted text-sm text-center">Welcome back!</p>

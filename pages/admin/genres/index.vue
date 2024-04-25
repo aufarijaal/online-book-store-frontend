@@ -4,9 +4,11 @@ interface GenreResponse {
   data: DataResponse<Genre>;
 }
 
+const auth = useAuthStore();
+
 definePageMeta({
   layout: "admin",
-  middleware: ["is-admin"],
+  middleware: ["authenticated", "admin"],
 });
 
 useHead({
@@ -337,6 +339,8 @@ onMounted(async () => {
           Showing
           {{
             genreResponse?.data.per_page! * genreResponse?.data.current_page!
+
+
           }}/{{ genreResponse?.data.total }} entries
         </div>
         <div v-else>Loading...</div>

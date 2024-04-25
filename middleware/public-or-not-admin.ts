@@ -8,8 +8,8 @@ export default defineNuxtRouteMiddleware((to) => {
   // if (import.meta.client && nuxtApp.isHydrating && nuxtApp.payload.serverRendered) return
   const auth = useAuthStore();
 
-  if (auth.isLoggedIn) {
-    return navigateTo(auth.user?.is_admin === "1" ? "/admin" : "/", {
+  if (auth.isLoggedIn && auth.user?.is_admin === "1") {
+    return navigateTo("/admin", {
       replace: true,
     });
   }

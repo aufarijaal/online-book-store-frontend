@@ -2,6 +2,12 @@
 import { titleCase } from "title-case";
 import toRupiah from "@develoka/angka-rupiah-js";
 
+const auth = useAuthStore();
+
+definePageMeta({
+  middleware: ["public-or-not-admin"],
+});
+
 const route = useRoute();
 const genre = titleCase(route.params.genre as string).replace("-", " ");
 const errorMsg = ref("");

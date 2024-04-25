@@ -1,11 +1,12 @@
 <script lang="ts" setup>
-import { useAuthStore } from "~/stores/useAuthStore";
+const auth = useAuthStore();
 
 definePageMeta({
   name: "SigninPage",
   layout: false,
   middleware: ["guest"],
 });
+
 const route = useRoute();
 const showPassword = ref(false);
 const showUnauthAlert = ref(route.query["unauth-alert"]);
@@ -19,7 +20,6 @@ const form = ref({
   password: "",
 });
 
-const auth = useAuthStore();
 function toggleShowPassword() {
   showPassword.value = !showPassword.value;
 }
@@ -36,7 +36,7 @@ watch(
   () => auth.isLoggedIn,
   () => {
     if (auth.isLoggedIn) {
-      navigateTo("/");
+      navigateTo(auth.user?.is_admin === "1" ? "/admin" : "/");
     }
   }
 );
@@ -64,7 +64,7 @@ watch(
         class="mb-4 d-flex justify-content-center flex-column align-items-center"
       >
         <NuxtLink to="/">
-          <img width="86" height="86" src="/nuxt.svg" alt="nuxt logo" />
+          <img width="86" height="86" src="/logo.svg" alt="nuxt logo" />
         </NuxtLink>
         <div class="text-center text-3xl font-weight-bold mb-3">Sign in</div>
         <p class="text-muted text-sm text-center">Welcome back!</p>
