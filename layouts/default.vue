@@ -6,6 +6,16 @@ const router = useRouter();
 const showModalCartInfo = ref(false);
 const mainStore = useMainStore();
 
+useHead({
+  link: [
+    {
+      type: "image/x-icon",
+      rel: "shortcut icon",
+      href: "logo.svg",
+    },
+  ],
+});
+
 async function search() {
   if (!q.value.trim()) return;
 
