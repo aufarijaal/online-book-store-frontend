@@ -70,10 +70,8 @@ onMounted(async () => {
         >
           <div class="card shadow-sm p-2">
             <img
-              :src="
-                book.cover_image ??
-                'https://bookstoreromanceday.org/wp-content/uploads/2020/08/book-cover-placeholder.png'
-              "
+              :src="book.cover_image"
+              onerror="this.onerror=null; this.src='/fallback_image.jpg'"
               :style="{
                 height: '200px',
                 width: '100%',

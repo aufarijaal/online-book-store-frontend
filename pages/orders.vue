@@ -106,10 +106,8 @@ onMounted(async () => {
                   <div style="flex-shrink: 0">
                     <NuxtLink :to="`/books/${item.book.slug}`">
                       <img
-                        :src="
-                          item.book.cover_image ??
-                          'https://bookstoreromanceday.org/wp-content/uploads/2020/08/book-cover-placeholder.png'
-                        "
+                        :src="item.book.cover_image"
+                        onerror="this.onerror=null; this.src='/fallback_image.jpg'"
                         :alt="`${item.book.title}'s Cover Image`"
                         style="max-height: 80px"
                       />

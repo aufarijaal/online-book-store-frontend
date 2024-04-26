@@ -85,10 +85,8 @@ onBeforeMount(async () => {
       <div class="row gap-3" v-if="book">
         <div class="col-2 d-flex justify-content-center border-end">
           <img
-            :src="
-              book.cover_image ??
-              'https://bookstoreromanceday.org/wp-content/uploads/2020/08/book-cover-placeholder.png'
-            "
+            :src="book.cover_image"
+            onerror="this.onerror=null; this.src='/fallback_image.jpg'"
             height="200"
             style="object-fit: contain"
           />

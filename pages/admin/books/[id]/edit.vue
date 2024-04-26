@@ -341,7 +341,12 @@ onMounted(async () => {
         </div>
       </form>
       <div class="col-md-4 d-none d-md-block">
-        <img style="max-width: 100%" :src="book?.cover_image" alt="" />
+        <img
+          style="max-width: 100%"
+          :src="book?.cover_image"
+          onerror="this.onerror=null; this.src='/fallback_image.jpg'"
+          alt=""
+        />
       </div>
     </div>
   </div>

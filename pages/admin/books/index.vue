@@ -295,6 +295,7 @@ onMounted(async () => {
                     style="max-height: calc(60px - 16px)"
                     :src="book.cover_image"
                     :alt="`${book.title}'s cover image`"
+                    onerror="this.onerror=null; this.src='/fallback_image.jpg'"
                     v-if="book.cover_image"
                   />
                 </td>
@@ -331,6 +332,8 @@ onMounted(async () => {
           Showing
           {{
             bookResponse?.data.per_page! * bookResponse?.data.current_page!
+
+
 
 
           }}/{{ bookResponse?.data.total }} entries

@@ -178,6 +178,7 @@ onMounted(async () => {
                 <div>
                   <img
                     :src="item.book.cover_image"
+                    onerror="this.onerror=null; this.src='/fallback_image.jpg'"
                     :alt="`${item.book.title}'s Cover Image`"
                     style="max-height: 80px"
                     v-if="item.book.cover_image"
@@ -247,6 +248,7 @@ onMounted(async () => {
           <div class="col-3">
             <img
               :src="selectedBook?.cover_image"
+              onerror="this.onerror=null; this.src='/fallback_image.jpg'"
               :alt="`${selectedBook?.title}'s Cover Image`"
               style="height: 100%; width: 100%; object-fit: contain"
               v-if="selectedBook && selectedBook?.cover_image"

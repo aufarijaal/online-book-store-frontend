@@ -85,6 +85,7 @@ onBeforeUnmount(() => {
               <div>
                 <img
                   :src="item.book.cover_image"
+                  onerror="this.onerror=null; this.src='/fallback_image.jpg'"
                   :alt="`${item.book.title}'s Cover Image`"
                   style="max-height: 80px"
                   v-if="item.book.cover_image"

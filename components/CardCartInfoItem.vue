@@ -49,10 +49,8 @@ const emits = defineEmits(["check", "uncheck", "readDetail"]);
             @click="$emit('readDetail')"
           >
             <img
-              :src="
-                cartInfo.book.cover_image ??
-                'https://bookstoreromanceday.org/wp-content/uploads/2020/08/book-cover-placeholder.png'
-              "
+              :src="cartInfo.book.cover_image"
+              onerror="this.onerror=null; this.src='/fallback_image.jpg'"
               :alt="`${cartInfo.book.title}'s Cover Image`"
               style="max-height: 80px"
             />
