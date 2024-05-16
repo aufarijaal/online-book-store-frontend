@@ -12,6 +12,7 @@ const book = ref();
 const qty = ref(1);
 const mainStore = useMainStore();
 const errorMsg = ref("");
+const auth = useAuthStore();
 
 useHead({
   title: `Garadia · Book Detail`,
