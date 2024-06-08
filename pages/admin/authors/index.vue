@@ -1,145 +1,133 @@
 <script lang="ts" setup>
 interface AuthorResponse {
-  message: string;
-  data: DataResponse<Author>;
+  message: string
+  data: DataResponse<Author>
 }
 
-const auth = useAuthStore();
+const auth = useAuthStore()
 
 definePageMeta({
-  layout: "admin",
-  middleware: ["authenticated", "admin"],
-});
+  layout: 'admin',
+  middleware: ['authenticated', 'admin'],
+})
 
 useHead({
-  title: "Admin · Authors",
-});
+  title: 'Admin · Authors',
+})
 
-const route = useRoute();
-const router = useRouter();
-const authorResponse = ref<AuthorResponse>();
-const sizePerPage = ref(20);
-const currentPage = ref(0);
-const selectedIds = ref<number[]>([]);
-const showAddAuthorModal = ref(false);
-const showEditAuthorModal = ref(false);
-const searchInput = ref("");
-const authorToEdit = ref<Pick<Author, "id" | "name" | "dob" | "nationality">>({
+const route = useRoute()
+const router = useRouter()
+const authorResponse = ref<AuthorResponse>()
+const sizePerPage = ref(20)
+const currentPage = ref(0)
+const selectedIds = ref<number[]>([])
+const showAddAuthorModal = ref(false)
+const showEditAuthorModal = ref(false)
+const searchInput = ref('')
+const authorToEdit = ref<Pick<Author, 'id' | 'name' | 'dob' | 'nationality'>>({
   id: 0,
-  name: "",
-  dob: "",
-  nationality: "",
-});
+  name: '',
+  dob: '',
+  nationality: '',
+})
 
 async function getAuthors() {
-  await useApiFetch("/sanctum/csrf-cookie");
+  await useApiFetch('/sanctum/csrf-cookie')
 
   const params = new URLSearchParams({
     page: currentPage.value.toString(),
     sizePerPage: sizePerPage.value.toString(),
     q: searchInput.value,
-  });
+  })
 
-  const result = await useApiFetch("/api/v1/admin/authors?" + params, {
+  const result = await useApiFetch('/api/v1/admin/authors?' + params, {
     headers: {
-      Accept: "application/json",
+      Accept: 'application/json',
     },
-  });
+  })
 
   if (result?.error.value) {
-    alert(result.error.value?.data.errors);
-    return;
+    alert(result.error.value?.data.errors)
+    return
   }
-  authorResponse.value = result.data.value as AuthorResponse;
+  authorResponse.value = result.data.value as AuthorResponse
 }
 
 async function editAuthor() {
-  await useApiFetch("/sanctum/csrf-cookie");
+  await useApiFetch('/sanctum/csrf-cookie')
 
-  const result = await useApiFetch(
-    `/api/v1/admin/authors/${selectedIds.value[0]}/edit`,
-    {
-      headers: {
-        Accept: "application/json",
-      },
-    }
-  );
+  const result = await useApiFetch(`/api/v1/admin/authors/${selectedIds.value[0]}/edit`, {
+    headers: {
+      Accept: 'application/json',
+    },
+  })
 
   if (result?.error.value) {
-    alert(result.error.value?.data.errors);
-    return;
+    alert(result.error.value?.data.errors)
+    return
   }
 
-  authorToEdit.value.id = selectedIds.value[0];
-  authorToEdit.value.name = (result.data.value as any).data.name;
-  authorToEdit.value.dob = (result.data.value as any).data.dob;
-  authorToEdit.value.nationality = (result.data.value as any).data.nationality;
+  authorToEdit.value.id = selectedIds.value[0]
+  authorToEdit.value.name = (result.data.value as any).data.name
+  authorToEdit.value.dob = (result.data.value as any).data.dob
+  authorToEdit.value.nationality = (result.data.value as any).data.nationality
 
-  showEditAuthorModal.value = true;
+  showEditAuthorModal.value = true
 }
 
 async function deleteAuthors() {
-  let message = "";
+  let message = ''
   if (selectedIds.value.length === 1) {
-    message = `Are you sure you want to delete a author with id ${selectedIds.value[0]}?`;
+    message = `Are you sure you want to delete a author with id ${selectedIds.value[0]}?`
   } else if (selectedIds.value.length === 2) {
-    message = `Are you sure want to delete a authors with id ${selectedIds.value[0]} and ${selectedIds.value[1]}?`;
+    message = `Are you sure want to delete a authors with id ${selectedIds.value[0]} and ${selectedIds.value[1]}?`
   } else {
-    const lastId = selectedIds.value[selectedIds.value.length - 1];
-    const idsString = selectedIds.value
-      .slice(0, selectedIds.value.length - 1)
-      .join(", ");
-    message = `Are you sure you want to delete authors with id ${idsString}, and ${lastId}?`;
+    const lastId = selectedIds.value[selectedIds.value.length - 1]
+    const idsString = selectedIds.value.slice(0, selectedIds.value.length - 1).join(', ')
+    message = `Are you sure you want to delete authors with id ${idsString}, and ${lastId}?`
   }
 
   if (confirm(message)) {
-    await useApiFetch("/sanctum/csrf-cookie");
+    await useApiFetch('/sanctum/csrf-cookie')
 
-    const result = await useApiFetch(
-      "/api/v1/admin/authors?ids=" + selectedIds.value.join(","),
-      {
-        method: "DELETE",
-        headers: {
-          Accept: "application/json",
-        },
-      }
-    );
+    const result = await useApiFetch('/api/v1/admin/authors?ids=' + selectedIds.value.join(','), {
+      method: 'DELETE',
+      headers: {
+        Accept: 'application/json',
+      },
+    })
 
     if (result?.error.value) {
-      alert(result.error.value?.data.errors);
-      return;
+      alert(result.error.value?.data.errors)
+      return
     }
 
-    selectedIds.value = [];
-    await getAuthors();
+    selectedIds.value = []
+    await getAuthors()
   } else {
-    selectedIds.value = [];
+    selectedIds.value = []
   }
 }
 
 watch([sizePerPage, currentPage], async () => {
-  await getAuthors();
-});
+  await getAuthors()
+})
 
 onMounted(async () => {
   if (route.query.redirectToPage) {
-    currentPage.value = parseInt(route.query.redirectToPage.toString());
+    currentPage.value = parseInt(route.query.redirectToPage.toString())
   } else {
-    currentPage.value = 1;
+    currentPage.value = 1
   }
 
-  await getAuthors();
-});
+  await getAuthors()
+})
 </script>
 
 <template>
   <div class="p-4 pt-0">
     <Teleport to="body">
-      <ModalsAddAuthor
-        v-if="showAddAuthorModal"
-        @close="showAddAuthorModal = false"
-        @refresh="getAuthors"
-      />
+      <ModalsAddAuthor v-if="showAddAuthorModal" @close="showAddAuthorModal = false" @refresh="getAuthors" />
       <ModalsEditAuthor
         v-if="showEditAuthorModal"
         :author="authorToEdit"
@@ -161,12 +149,7 @@ onMounted(async () => {
             v-model="searchInput"
             @keyup.enter="getAuthors"
           />
-          <button
-            class="btn btn-primary"
-            type="button"
-            id="button-search"
-            @click="getAuthors"
-          >
+          <button class="btn btn-primary" type="button" id="button-search" @click="getAuthors">
             <SearchIcon width="20" height="20" />
           </button>
         </div>
@@ -188,8 +171,8 @@ onMounted(async () => {
                 class="dropdown-item"
                 @click="
                   () => {
-                    currentPage = 1;
-                    sizePerPage = 20;
+                    currentPage = 1
+                    sizePerPage = 20
                   }
                 "
               >
@@ -201,8 +184,8 @@ onMounted(async () => {
                 class="dropdown-item"
                 @click="
                   () => {
-                    currentPage = 1;
-                    sizePerPage = 50;
+                    currentPage = 1
+                    sizePerPage = 50
                   }
                 "
               >
@@ -214,8 +197,8 @@ onMounted(async () => {
                 class="dropdown-item"
                 @click="
                   () => {
-                    currentPage = 1;
-                    sizePerPage = 100;
+                    currentPage = 1
+                    sizePerPage = 100
                   }
                 "
               >
@@ -228,29 +211,16 @@ onMounted(async () => {
 
       <!-- Data Table -->
       <div class="card">
-        <h5
-          class="card-header d-flex align-items-center justify-content-between"
-        >
+        <h5 class="card-header d-flex align-items-center justify-content-between">
           <div class="fs-5">Authors</div>
           <div class="d-flex align-items-center gap-2">
-            <button
-              class="btn btn-primary btn-sm"
-              @click="showAddAuthorModal = true"
-            >
+            <button class="btn btn-primary btn-sm" @click="showAddAuthorModal = true">
               <PlusIcon />
             </button>
-            <button
-              class="btn btn-success btn-sm"
-              :disabled="!selectedIds.length"
-              @click="editAuthor"
-            >
+            <button class="btn btn-success btn-sm" :disabled="!selectedIds.length" @click="editAuthor">
               <PencilIcon />
             </button>
-            <button
-              class="btn btn-danger btn-sm"
-              :disabled="!selectedIds.length"
-              @click="deleteAuthors"
-            >
+            <button class="btn btn-danger btn-sm" :disabled="!selectedIds.length" @click="deleteAuthors">
               <TrashIcon />
               ({{ selectedIds.length }})
             </button>
@@ -264,10 +234,7 @@ onMounted(async () => {
             </button>
           </div>
         </h5>
-        <div
-          class="table-responsive text-nowrap"
-          style="max-height: calc(100vh - 300px)"
-        >
+        <div class="table-responsive text-nowrap" style="max-height: calc(100vh - 300px)">
           <table class="table table-striped" v-if="authorResponse">
             <thead>
               <tr>
@@ -276,14 +243,14 @@ onMounted(async () => {
                     <input
                       class="form-check-input"
                       type="checkbox"
-                      @change="(e) => {
-                        if((e.target as HTMLInputElement).checked && authorResponse) {
-                          selectedIds = authorResponse?.data.data.map(item => item.id);
-                        } else selectedIds = [];
-                      }"
-                      :checked="
-                        selectedIds.length === authorResponse.data.data.length
+                      @change="
+                        (e) => {
+                          if ((e.target as HTMLInputElement).checked && authorResponse) {
+                            selectedIds = authorResponse?.data.data.map((item) => item.id)
+                          } else selectedIds = []
+                        }
                       "
+                      :checked="selectedIds.length === authorResponse.data.data.length"
                       style="transform: scale(1.4)"
                     />
                   </div>
@@ -301,11 +268,13 @@ onMounted(async () => {
                     <input
                       class="form-check-input"
                       type="checkbox"
-                      @change="(e) => {
-                        if((e.target as HTMLInputElement).checked) {
-                          selectedIds.push(book.id);
-                        } else selectedIds = selectedIds.filter(item => item !== book.id);
-                      }"
+                      @change="
+                        (e) => {
+                          if ((e.target as HTMLInputElement).checked) {
+                            selectedIds.push(book.id)
+                          } else selectedIds = selectedIds.filter((item) => item !== book.id)
+                        }
+                      "
                       :checked="selectedIds.includes(book.id)"
                       :id="`mark-${book.id}`"
                       style="transform: scale(1.4)"
@@ -341,11 +310,10 @@ onMounted(async () => {
       <div class="d-flex justify-content-between mt-2">
         <div v-if="authorResponse">
           Showing
-          {{
-            authorResponse?.data.per_page! * authorResponse?.data.current_page!
-
-
-          }}/{{ authorResponse?.data.total }} entries
+          {{ authorResponse?.data.per_page! * authorResponse?.data.current_page! }}/{{
+            authorResponse?.data.total
+          }}
+          entries
         </div>
         <div v-else>Loading...</div>
 
@@ -354,26 +322,18 @@ onMounted(async () => {
           <ul class="pagination pagination-sm">
             <li class="page-item" v-for="page in authorResponse?.data.links">
               <div
-                :class="[
-                  'page-link',
-                  page.active ? 'active' : '',
-                  page.url ? '' : 'disabled',
-                ]"
+                :class="['page-link', page.active ? 'active' : '', page.url ? '' : 'disabled']"
                 style="cursor: pointer"
                 @click="
                   currentPage = page.label.includes('Prev')
                     ? authorResponse?.data.current_page! - 1
                     : page.label.includes('Next')
-                    ? authorResponse?.data.current_page! + 1
-                    : parseInt(page.label)
+                      ? authorResponse?.data.current_page! + 1
+                      : parseInt(page.label)
                 "
                 :title="`page ${page.label.includes('Prev') ? authorResponse?.data.current_page! - 1 : page.label.includes('Next') ? authorResponse?.data.current_page! + 1 : parseInt(page.label)}`"
               >
-                {{
-                  page.label
-                    .replaceAll("&amp;laquo;", "")
-                    .replaceAll("&amp;raquo;", "")
-                }}
+                {{ page.label.replaceAll('&amp;laquo;', '').replaceAll('&amp;raquo;', '') }}
               </div>
             </li>
           </ul>

@@ -1,37 +1,37 @@
 <script lang="ts" setup>
-const emits = defineEmits(["refresh", "close"]);
+const emits = defineEmits(['refresh', 'close'])
 const form = ref({
-  name: "",
-  email: "",
-  password: "",
+  name: '',
+  email: '',
+  password: '',
   set_as_verified: false,
-});
+})
 
 const errorMsg = ref<{
-  name: string[];
-  email: string[];
-  password: string[];
-  set_as_verified: string[];
-}>();
+  name: string[]
+  email: string[]
+  password: string[]
+  set_as_verified: string[]
+}>()
 
 async function submit() {
-  await useApiFetch("/sanctum/csrf-cookie");
+  await useApiFetch('/sanctum/csrf-cookie')
 
-  const result = await useApiFetch("/api/v1/admin/customers", {
-    method: "POST",
+  const result = await useApiFetch('/api/v1/admin/customers', {
+    method: 'POST',
     body: form.value,
     headers: {
-      Accept: "application/json",
+      Accept: 'application/json',
     },
-  });
+  })
 
   if (result?.error.value) {
-    alert(result.error.value.message);
-    errorMsg.value = result.error.value?.data.errors;
-    return;
+    alert(result.error.value.message)
+    errorMsg.value = result.error.value?.data.errors
+    return
   }
-  emits("refresh");
-  emits("close");
+  emits('refresh')
+  emits('close')
 }
 </script>
 
@@ -40,12 +40,7 @@ async function submit() {
     <div class="custom-modal">
       <div class="custom-modal__header">
         <div>Add new customer</div>
-        <button
-          type="button"
-          class="btn-close"
-          aria-label="Close"
-          @click="$emit('close')"
-        ></button>
+        <button type="button" class="btn-close" aria-label="Close" @click="$emit('close')"></button>
       </div>
 
       <div class="custom-modal__body">
@@ -129,9 +124,7 @@ async function submit() {
                 v-model="form.set_as_verified"
                 aria-describedby="isActiveHelp"
               />
-              <label class="form-check-label ms-3" for="set_as_verified"
-                >Set as verified</label
-              >
+              <label class="form-check-label ms-3" for="set_as_verified">Set as verified</label>
               <div
                 id="isActiveHelp"
                 class="form-text text-xs text-danger"
@@ -146,20 +139,8 @@ async function submit() {
       </div>
 
       <div class="custom-modal__footer">
-        <button
-          type="button"
-          class="btn btn-light btn-sm"
-          @click="$emit('close')"
-        >
-          Cancel
-        </button>
-        <button
-          type="submit"
-          form="add-customer-form"
-          class="btn btn-primary btn-sm"
-        >
-          Submit
-        </button>
+        <button type="button" class="btn btn-light btn-sm" @click="$emit('close')">Cancel</button>
+        <button type="submit" form="add-customer-form" class="btn btn-primary btn-sm">Submit</button>
       </div>
     </div>
   </div>

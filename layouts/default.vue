@@ -1,25 +1,25 @@
 <script setup lang="ts">
-const auth = useAuthStore();
-const genres = ref();
-const q = ref("");
-const router = useRouter();
-const showModalCartInfo = ref(false);
-const mainStore = useMainStore();
+const auth = useAuthStore()
+const genres = ref()
+const q = ref('')
+const router = useRouter()
+const showModalCartInfo = ref(false)
+const mainStore = useMainStore()
 
 useHead({
   link: [
     {
-      type: "image/x-icon",
-      rel: "shortcut icon",
-      href: "logo.svg",
+      type: 'image/x-icon',
+      rel: 'shortcut icon',
+      href: 'logo.svg',
     },
   ],
-});
+})
 
 async function search() {
-  if (!q.value.trim()) return;
+  if (!q.value.trim()) return
 
-  router.push(`/books/search?q=${q.value}`);
+  router.push(`/books/search?q=${q.value}`)
 }
 
 onMounted(async () => {
@@ -29,29 +29,26 @@ onMounted(async () => {
   //   }
   // });
 
-  await useApiFetch("/sanctum/csrf-cookie", {
+  await useApiFetch('/sanctum/csrf-cookie', {
     headers: {
-      Accept: "application/json",
+      Accept: 'application/json',
     },
-  });
-  const { data } = await useApiFetch("/api/v1/genres?getGenreForNav=true");
+  })
+  const { data } = await useApiFetch('/api/v1/genres?getGenreForNav=true')
 
-  genres.value = (data.value as any).data;
+  genres.value = (data.value as any).data
 
   if (auth.isLoggedIn) {
-    await mainStore.getCartItemsCount();
+    await mainStore.getCartItemsCount()
   }
-});
+})
 </script>
 
 <template>
   <div id="default-layout">
     <header>
       <!-- Fixed navbar -->
-      <nav
-        class="navbar navbar-expand-lg fixed-top bg-dark navbar-dark"
-        data-bs-theme="dark"
-      >
+      <nav class="navbar navbar-expand-lg fixed-top bg-dark navbar-dark" data-bs-theme="dark">
         <div class="container-fluid">
           <div class="d-flex align-items-center gap-2">
             <img src="/logo.svg" height="30" />
@@ -83,11 +80,7 @@ onMounted(async () => {
                 </a>
                 <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                   <li v-for="genre in genres">
-                    <NuxtLink
-                      class="dropdown-item"
-                      :to="`/genres/${genre.slug}`"
-                      >{{ genre.name }}</NuxtLink
-                    >
+                    <NuxtLink class="dropdown-item" :to="`/genres/${genre.slug}`">{{ genre.name }}</NuxtLink>
                   </li>
                 </ul>
               </li>
@@ -106,25 +99,14 @@ onMounted(async () => {
             </ul>
             <ul class="nav justify-content-end">
               <li class="nav-item" v-if="!auth.isLoggedIn">
-                <NuxtLink class="nav-link text-white" to="/auth/login"
-                  >Login</NuxtLink
-                >
+                <NuxtLink class="nav-link text-white" to="/auth/login">Login</NuxtLink>
               </li>
               <li class="nav-item" v-if="!auth.isLoggedIn">
-                <NuxtLink class="nav-link text-white" to="/auth/register"
-                  >Register</NuxtLink
-                >
+                <NuxtLink class="nav-link text-white" to="/auth/register">Register</NuxtLink>
               </li>
 
-              <li
-                class="nav-item d-flex align-items-center text-white"
-                v-if="auth.isLoggedIn"
-              >
-                <button
-                  class="btn"
-                  style="position: relative"
-                  @click="showModalCartInfo = true"
-                >
+              <li class="nav-item d-flex align-items-center text-white" v-if="auth.isLoggedIn">
+                <button class="btn" style="position: relative" @click="showModalCartInfo = true">
                   <div id="cart-button" style="position: relative">
                     <CartIcon />
                     <span
@@ -135,19 +117,12 @@ onMounted(async () => {
                   </div>
 
                   <Teleport to="body">
-                    <ModalsCartInfo
-                      v-if="showModalCartInfo"
-                      @close="showModalCartInfo = false"
-                    />
+                    <ModalsCartInfo v-if="showModalCartInfo" @close="showModalCartInfo = false" />
                   </Teleport>
                 </button>
               </li>
 
-              <li
-                class="nav-item dropdown"
-                v-if="auth.isLoggedIn"
-                data-bs-theme="light"
-              >
+              <li class="nav-item dropdown" v-if="auth.isLoggedIn" data-bs-theme="light">
                 <a
                   class="nav-link dropdown-toggle text-light"
                   href="#"
@@ -158,25 +133,18 @@ onMounted(async () => {
                 >
                   <CustomerIcon />
                 </a>
-                <ul
-                  class="dropdown-menu dropdown-menu-end"
-                  aria-labelledby="navbarDropdown"
-                >
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                   <li>
-                    <NuxtLink to="/orders" class="dropdown-item">
-                      My Orders
-                    </NuxtLink>
+                    <NuxtLink to="/orders" class="dropdown-item"> My Orders </NuxtLink>
                   </li>
                   <li>
-                    <NuxtLink to="/account" class="dropdown-item">
-                      My Account
-                    </NuxtLink>
+                    <NuxtLink to="/account" class="dropdown-item"> My Account </NuxtLink>
                   </li>
-                  <li><hr class="dropdown-divider" /></li>
                   <li>
-                    <button class="dropdown-item fw-bold" @click="auth.logout">
-                      Logout
-                    </button>
+                    <hr class="dropdown-divider" />
+                  </li>
+                  <li>
+                    <button class="dropdown-item fw-bold" @click="auth.logout">Logout</button>
                   </li>
                 </ul>
               </li>

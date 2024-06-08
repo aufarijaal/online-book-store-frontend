@@ -1,47 +1,47 @@
 <script lang="ts" setup>
-import toRupiah from "@develoka/angka-rupiah-js";
+import toRupiah from '@develoka/angka-rupiah-js'
 
-const auth = useAuthStore();
+const auth = useAuthStore()
 
 definePageMeta({
-  middleware: ["public-or-not-admin"],
-});
+  middleware: ['public-or-not-admin'],
+})
 
-const route = useRoute();
-const router = useRouter();
-const query = ref(route.query.q);
-const errorMsg = ref("");
+const route = useRoute()
+const router = useRouter()
+const query = ref(route.query.q)
+const errorMsg = ref('')
 
 useHead({
   title: `${route.query.q} · Search`,
-});
+})
 
-const bookResponse = ref<any>();
+const bookResponse = ref<any>()
 
 async function getBooks() {
-  await useApiFetch("/sanctum/csrf-cookie");
+  await useApiFetch('/sanctum/csrf-cookie')
 
   const result = await useApiFetch(`/api/v1/books/search?q=${route.query.q}`, {
     headers: {
-      Accept: "application/json",
+      Accept: 'application/json',
     },
-  });
+  })
 
   if (result?.error.value) {
-    errorMsg.value = result.error.value?.data.message;
-    return;
+    errorMsg.value = result.error.value?.data.message
+    return
   }
 
-  bookResponse.value = result.data.value as BookResponse;
+  bookResponse.value = result.data.value as BookResponse
 }
 
 onMounted(async () => {
-  await getBooks();
+  await getBooks()
 
   router.afterEach(async () => {
-    await getBooks();
-  });
-});
+    await getBooks()
+  })
+})
 </script>
 
 <template>
@@ -49,11 +49,7 @@ onMounted(async () => {
     <main class="container" style="padding: 100px 0">
       <!-- Alert -->
       <div class="alert alert-dismissible alert-danger" v-show="errorMsg">
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="alert"
-        ></button>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         <span>{{ errorMsg }}</span>
       </div>
 
@@ -80,12 +76,8 @@ onMounted(async () => {
               }"
             />
 
-            <div
-              class="card-body text-center d-flex flex-column justify-content-center gap-2"
-            >
-              <div class="text-muted line-clamp-1">
-                by {{ book.author ? book.author.name : "Unknown" }}
-              </div>
+            <div class="card-body text-center d-flex flex-column justify-content-center gap-2">
+              <div class="text-muted line-clamp-1">by {{ book.author ? book.author.name : 'Unknown' }}</div>
               <div class="fw-bold line-clamp-1">{{ book.title }}</div>
               <div class="fw-bold text-success">
                 {{ toRupiah(book.price, { floatingPoint: 0 }) }}
@@ -101,12 +93,7 @@ onMounted(async () => {
           class="skeleton-box rounded"
         ></div>
 
-        <div
-          v-if="bookResponse && !bookResponse.data.length"
-          class="mt-4 text-muted"
-        >
-          No Result
-        </div>
+        <div v-if="bookResponse && !bookResponse.data.length" class="mt-4 text-muted">No Result</div>
       </div>
     </main>
   </div>

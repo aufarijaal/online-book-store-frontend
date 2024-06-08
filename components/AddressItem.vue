@@ -1,25 +1,14 @@
 <script lang="ts" setup>
-defineProps<{ address: Address }>();
-defineEmits(["edit", "delete"]);
+defineProps<{ address: Address }>()
+defineEmits(['edit', 'delete'])
 </script>
 
 <template>
-  <li
-    class="address-item list-group-item d-flex flex-column flex-md-row justify-content-between align-items-center"
-  >
+  <li class="address-item list-group-item d-flex flex-column flex-md-row justify-content-between align-items-center">
     <div class="ms-2 me-auto w-100 mb-3 mb-md-0" style="flex-grow: 1">
-      <span class="badge bg-primary rounded-pill mb-2" v-if="address.is_active"
-        >Active</span
-      >
+      <span class="badge bg-primary rounded-pill mb-2" v-if="address.is_active">Active</span>
       <div class="fw-bold">{{ address.name }}</div>
-      <div
-        style="
-          max-width: 100%;
-          overflow: hidden;
-          white-space: nowrap;
-          text-overflow: ellipsis;
-        "
-      >
+      <div style="max-width: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis">
         <span class="text-xs">{{ address.full_address }}</span>
       </div>
     </div>
@@ -29,9 +18,7 @@ defineEmits(["edit", "delete"]);
       style="flex-shrink: 0"
     >
       <button class="btn btn-light btn-sm" @click="$emit('edit')">Edit</button>
-      <button class="btn btn-danger btn-sm" @click="$emit('delete')">
-        Delete
-      </button>
+      <button class="btn btn-danger btn-sm" @click="$emit('delete')">Delete</button>
     </div>
   </li>
 </template>

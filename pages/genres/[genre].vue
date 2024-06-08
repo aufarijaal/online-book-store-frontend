@@ -1,46 +1,43 @@
 <script lang="ts" setup>
-import { titleCase } from "title-case";
-import toRupiah from "@develoka/angka-rupiah-js";
+import { titleCase } from 'title-case'
+import toRupiah from '@develoka/angka-rupiah-js'
 
-const auth = useAuthStore();
+const auth = useAuthStore()
 
 definePageMeta({
-  middleware: ["public-or-not-admin"],
-});
+  middleware: ['public-or-not-admin'],
+})
 
-const route = useRoute();
-const genre = titleCase(route.params.genre as string).replace("-", " ");
-const errorMsg = ref("");
+const route = useRoute()
+const genre = titleCase(route.params.genre as string).replace('-', ' ')
+const errorMsg = ref('')
 
 useHead({
   title: `${genre} · Genre`,
-});
+})
 
-const bookResponse = ref<any>();
+const bookResponse = ref<any>()
 
 async function getBooks() {
-  await useApiFetch("/sanctum/csrf-cookie");
+  await useApiFetch('/sanctum/csrf-cookie')
 
-  const result = await useApiFetch(
-    `/api/v1/genres/get-books-by-genre-slug/${route.params.genre}`,
-    {
-      headers: {
-        Accept: "application/json",
-      },
-    }
-  );
+  const result = await useApiFetch(`/api/v1/genres/get-books-by-genre-slug/${route.params.genre}`, {
+    headers: {
+      Accept: 'application/json',
+    },
+  })
 
   if (result?.error.value) {
-    errorMsg.value = result.error.value?.data.message;
-    return;
+    errorMsg.value = result.error.value?.data.message
+    return
   }
 
-  bookResponse.value = result.data.value as BookResponse;
+  bookResponse.value = result.data.value as BookResponse
 }
 
 onMounted(async () => {
-  await getBooks();
-});
+  await getBooks()
+})
 </script>
 
 <template>
@@ -48,11 +45,7 @@ onMounted(async () => {
     <main class="container" style="padding: 100px 0">
       <!-- Alert -->
       <div class="alert alert-dismissible alert-danger" v-show="errorMsg">
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="alert"
-        ></button>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         <span>{{ errorMsg }}</span>
       </div>
 
@@ -79,12 +72,8 @@ onMounted(async () => {
               }"
             />
 
-            <div
-              class="card-body text-center d-flex flex-column justify-content-center gap-2"
-            >
-              <div class="text-muted line-clamp-1">
-                by {{ book.author ? book.author.name : "Unknown" }}
-              </div>
+            <div class="card-body text-center d-flex flex-column justify-content-center gap-2">
+              <div class="text-muted line-clamp-1">by {{ book.author ? book.author.name : 'Unknown' }}</div>
               <div class="fw-bold line-clamp-1">{{ book.title }}</div>
               <div class="fw-bold text-success">
                 {{ toRupiah(book.price, { floatingPoint: 0 }) }}

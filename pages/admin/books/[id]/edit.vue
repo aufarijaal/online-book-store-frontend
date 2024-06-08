@@ -1,136 +1,133 @@
 <script lang="ts" setup>
-const route = useRoute();
-const router = useRouter();
+const route = useRoute()
+const router = useRouter()
 
-const auth = useAuthStore();
+const auth = useAuthStore()
 
 definePageMeta({
-  layout: "admin",
-  middleware: ["authenticated", "admin"],
-});
+  layout: 'admin',
+  middleware: ['authenticated', 'admin'],
+})
 
 useHead({
   title: `Books · ${route.params.id} · Edit`,
-});
+})
 
-const form = ref<Omit<Book, "created_at" | "updated_at" | "deleted_at">>({
+const form = ref<Omit<Book, 'created_at' | 'updated_at' | 'deleted_at'>>({
   id: parseInt(route.params.id as string),
   author_id: 0,
   genre_id: 0,
-  title: "",
-  published_date: "",
+  title: '',
+  published_date: '',
   stock_qty: 0,
   price: 0,
-});
+})
 
 const errorMsg = ref<{
-  author_id: string[];
-  genre_id: string[];
-  title: string[];
-  published_date: string[];
-  stock_qty: string[];
-  price: string[];
-  cover_image: string[];
-}>();
-const book = ref<Book>();
-const genres = ref<Genre[]>();
-const authors = ref<Author[]>();
-const coverImageInputRef = ref<HTMLInputElement>();
+  author_id: string[]
+  genre_id: string[]
+  title: string[]
+  published_date: string[]
+  stock_qty: string[]
+  price: string[]
+  cover_image: string[]
+}>()
+const book = ref<Book>()
+const genres = ref<Genre[]>()
+const authors = ref<Author[]>()
+const coverImageInputRef = ref<HTMLInputElement>()
 
 async function getGenres() {
-  await useApiFetch("/sanctum/csrf-cookie");
-  const result = await useApiFetch("/api/v1/admin/genres?forDropdown=true", {
+  await useApiFetch('/sanctum/csrf-cookie')
+  const result = await useApiFetch('/api/v1/admin/genres?forDropdown=true', {
     headers: {
-      Accept: "application/json",
+      Accept: 'application/json',
     },
-  });
+  })
   if (result?.error.value) {
-    alert(result.error.value?.message);
-    return;
+    alert(result.error.value?.message)
+    return
   }
-  genres.value = (result.data.value as any).data as Genre[];
+  genres.value = (result.data.value as any).data as Genre[]
 }
 
 async function getAuthors() {
-  await useApiFetch("/sanctum/csrf-cookie");
+  await useApiFetch('/sanctum/csrf-cookie')
 
-  const result = await useApiFetch("/api/v1/admin/authors?forDropdown=true", {
+  const result = await useApiFetch('/api/v1/admin/authors?forDropdown=true', {
     headers: {
-      Accept: "application/json",
+      Accept: 'application/json',
     },
-  });
+  })
 
   if (result?.error.value) {
-    alert(result.error.value?.message);
-    return;
+    alert(result.error.value?.message)
+    return
   }
 
-  authors.value = (result.data.value as any).data as Author[];
+  authors.value = (result.data.value as any).data as Author[]
 }
 
 async function getBook() {
-  await useApiFetch("/sanctum/csrf-cookie");
+  await useApiFetch('/sanctum/csrf-cookie')
 
-  const result = await useApiFetch(
-    "/api/v1/admin/books/" + route.params.id + "/edit",
-    {
-      headers: {
-        Accept: "application/json",
-      },
-    }
-  );
+  const result = await useApiFetch('/api/v1/admin/books/' + route.params.id + '/edit', {
+    headers: {
+      Accept: 'application/json',
+    },
+  })
 
   if (result?.error.value) {
-    alert(result.error.value?.message);
-    return;
+    alert(result.error.value?.message)
+    return
   }
 
-  book.value = (result.data.value as any).data as Book;
-  form.value.id = book.value.id;
-  form.value.author_id = book.value.author_id;
-  form.value.genre_id = book.value.genre_id;
-  form.value.title = book.value.title;
-  form.value.published_date = book.value.published_date;
-  form.value.stock_qty = book.value.stock_qty;
-  form.value.price = book.value.price;
+  book.value = (result.data.value as any).data as Book
+  form.value.id = book.value.id
+  form.value.author_id = book.value.author_id
+  form.value.genre_id = book.value.genre_id
+  form.value.title = book.value.title
+  form.value.published_date = book.value.published_date
+  form.value.stock_qty = book.value.stock_qty
+  form.value.price = book.value.price
 }
 
 async function submit() {
-  await useApiFetch("/sanctum/csrf-cookie");
+  await useApiFetch('/sanctum/csrf-cookie')
 
-  const formData = new FormData();
+  const formData = new FormData()
   for (const [key, value] of Object.entries(form.value)) {
-    formData.append(key, value as any);
+    formData.append(key, value as any)
   }
 
   if (coverImageInputRef.value?.files?.length) {
-    formData.append("cover_image", coverImageInputRef.value?.files[0] as any);
+    formData.append('cover_image', coverImageInputRef.value?.files[0] as any)
   }
 
-  formData.append("_method", "PUT");
+  formData.append('_method', 'PUT')
 
-  const result = await useApiFetch("/api/v1/admin/books/" + route.params.id, {
-    method: "POST",
+  const result = await useApiFetch('/api/v1/admin/books/' + route.params.id, {
+    method: 'POST',
     body: formData,
     headers: {
-      Accept: "application/json",
+      Accept: 'application/json',
     },
-  });
+  })
 
   if (result?.error.value) {
-    alert(result.error.value.message);
-    errorMsg.value = result.error.value?.data.errors;
-    return;
+    alert(result.error.value.message)
+    errorMsg.value = result.error.value?.data.errors
+    return
   }
 
-  router.push(`/admin/books?redirectToPage=${route.query.redirectPage}`);
+  router.push(`/admin/books?redirectToPage=${route.query.redirectPage}`)
 }
 
 onMounted(async () => {
-  await getBook();
-  await getGenres();
-  await getAuthors();
-});
+  await getBook()
+  await getGenres()
+  await getAuthors()
+})
 </script>
 
 <template>
@@ -143,10 +140,7 @@ onMounted(async () => {
     }"
     class="p-4 pt-0"
   >
-    <button
-      class="btn btn-primary btn-sm d-flex align-items-center gap-2"
-      @click="$router.back"
-    >
+    <button class="btn btn-primary btn-sm d-flex align-items-center gap-2" @click="$router.back">
       <ArrowLeftIcon />
       Back
     </button>
@@ -185,11 +179,7 @@ onMounted(async () => {
             v-model="form.author_id"
           >
             <option selected disabled>Choose an author</option>
-            <option
-              v-for="(author, i) in authors"
-              :value="author.id"
-              :selected="i === 0"
-            >
+            <option v-for="(author, i) in authors" :value="author.id" :selected="i === 0">
               {{ author.id }} ⠂ {{ author.name }} ⠂ {{ author.nationality }}
             </option>
           </select>
@@ -214,11 +204,7 @@ onMounted(async () => {
             v-model="form.genre_id"
           >
             <option selected disabled>Choose a genre</option>
-            <option
-              v-for="(genre, i) in genres"
-              :value="genre.id"
-              :selected="i === 0"
-            >
+            <option v-for="(genre, i) in genres" :value="genre.id" :selected="i === 0">
               {{ genre.id }} ⠂ {{ genre.name }}
             </option>
           </select>
@@ -286,10 +272,7 @@ onMounted(async () => {
           <label for="cover_image" class="form-label">Cover</label>
           <div class="input-group has-validation">
             <input
-              :class="[
-                'form-control',
-                errorMsg?.cover_image ? 'is-invalid' : '',
-              ]"
+              :class="['form-control', errorMsg?.cover_image ? 'is-invalid' : '']"
               type="file"
               id="cover_image"
               ref="coverImageInputRef"
@@ -315,10 +298,7 @@ onMounted(async () => {
           <div class="input-group has-validation">
             <input
               type="date"
-              :class="[
-                'form-control',
-                errorMsg?.published_date ? 'is-invalid' : '',
-              ]"
+              :class="['form-control', errorMsg?.published_date ? 'is-invalid' : '']"
               id="published_date"
               aria-describedby="validationPublishedDateFeedback"
               required

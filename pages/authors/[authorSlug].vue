@@ -1,46 +1,42 @@
 <script setup lang="ts">
-import dayjs from "dayjs";
-import toRupiah from "@develoka/angka-rupiah-js";
+import dayjs from 'dayjs'
+import toRupiah from '@develoka/angka-rupiah-js'
 
-const route = useRoute();
-const author = ref<Author>();
-const books = ref();
-const errorMsg = ref("");
+const route = useRoute()
+const author = ref<Author>()
+const books = ref()
+const errorMsg = ref('')
 
 useHead({
   title: `Author · Garadia`,
-});
+})
 
 definePageMeta({
-  middleware: ["public-or-not-admin"],
-});
+  middleware: ['public-or-not-admin'],
+})
 
 async function getAuthor() {
-  await useApiFetch("/sanctum/csrf-cookie");
+  await useApiFetch('/sanctum/csrf-cookie')
 
-  const result = await useApiFetch(
-    `/api/v1/authors/${route.params.authorSlug}`,
-    {
-      headers: {
-        Accept: "application/json",
-      },
-    }
-  );
+  const result = await useApiFetch(`/api/v1/authors/${route.params.authorSlug}`, {
+    headers: {
+      Accept: 'application/json',
+    },
+  })
 
   if (result?.error.value) {
-    errorMsg.value = result.error.value?.data.message;
-    return;
+    errorMsg.value = result.error.value?.data.message
+    return
   }
 
-  author.value = (result.data.value as { message: string; data: any })
-    .data as any;
+  author.value = (result.data.value as { message: string; data: any }).data as any
 
-  books.value = (result.data.value as any).data.books;
+  books.value = (result.data.value as any).data.books
 }
 
 onMounted(async () => {
-  await getAuthor();
-});
+  await getAuthor()
+})
 </script>
 
 <template>
@@ -48,18 +44,14 @@ onMounted(async () => {
     <main class="container" style="padding: 100px 0">
       <!-- Alert -->
       <div class="alert alert-dismissible alert-danger" v-show="errorMsg">
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="alert"
-        ></button>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         <span>{{ errorMsg }}</span>
       </div>
 
       <div class="text-muted text-center">Author</div>
       <div class="fw-bold fs-4 text-center mt-2">{{ author?.name }}</div>
       <div class="text-center mt-2">
-        🗓️ {{ dayjs(author?.dob, "YYYY-MM-DD").format("MMMM DD YYYY") }} | 🌍
+        🗓️ {{ dayjs(author?.dob, 'YYYY-MM-DD').format('MMMM DD YYYY') }} | 🌍
         {{ author?.nationality }}
       </div>
 
@@ -82,12 +74,8 @@ onMounted(async () => {
               }"
             />
 
-            <div
-              class="card-body text-center d-flex flex-column justify-content-center gap-2"
-            >
-              <div class="text-muted line-clamp-1">
-                by {{ book.author ? book.author.name : "Unknown" }}
-              </div>
+            <div class="card-body text-center d-flex flex-column justify-content-center gap-2">
+              <div class="text-muted line-clamp-1">by {{ book.author ? book.author.name : 'Unknown' }}</div>
               <div class="fw-bold line-clamp-1">{{ book.title }}</div>
               <div class="fw-bold text-success">
                 {{ toRupiah(book.price, { floatingPoint: 0 }) }}

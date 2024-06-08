@@ -1,1 +1,1 @@
-declare module "@develoka/angka-rupiah-js";
+declare module '@develoka/angka-rupiah-js'

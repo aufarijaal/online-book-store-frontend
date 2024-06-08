@@ -1,16 +1,10 @@
 <script lang="ts" setup>
-onMounted(() => {});
+onMounted(() => {})
 </script>
 
 <template>
-  <aside
-    class="d-flex flex-column flex-shrink-0 p-3 text-white bg-dark"
-    style="width: 280px"
-  >
-    <a
-      href="/admin"
-      class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none gap-3"
-    >
+  <aside class="d-flex flex-column flex-shrink-0 p-3 text-white bg-dark" style="width: 280px">
+    <a href="/admin" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none gap-3">
       <img width="32" height="32" src="/logo.svg" alt="Brand Logo" />
       <span class="fs-5 fw-bold">Garadia Admin</span>
     </a>

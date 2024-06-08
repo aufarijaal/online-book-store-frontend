@@ -6,9 +6,9 @@ export default defineNuxtRouteMiddleware((to) => {
   // // or only skip middleware on initial client load
   // const nuxtApp = useNuxtApp()
   // if (import.meta.client && nuxtApp.isHydrating && nuxtApp.payload.serverRendered) return
-  const auth = useAuthStore();
+  const auth = useAuthStore()
 
   if (!auth.isLoggedIn) {
-    return navigateTo("/auth/login", { replace: true });
+    return navigateTo('/auth/login', { replace: true })
   }
-});
+})

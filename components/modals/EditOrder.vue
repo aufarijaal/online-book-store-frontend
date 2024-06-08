@@ -1,144 +1,141 @@
 <script lang="ts" setup>
-import toRupiah from "@develoka/angka-rupiah-js";
-import dayjs from "dayjs";
+import toRupiah from '@develoka/angka-rupiah-js'
+import dayjs from 'dayjs'
 
-const emits = defineEmits(["refresh", "close"]);
+const emits = defineEmits(['refresh', 'close'])
 
 const errorMsg = ref<{
-  name: string[];
-  description: string[];
-}>();
+  name: string[]
+  description: string[]
+}>()
 
-const orderItems = ref<{ book: Book; qty: number; item_price: number }[]>([]);
-const qtyCount = ref(1);
-const books = ref<Book[]>();
-const selectedBook = ref<Book>();
-const selectedCustomer = ref<User>();
-const customers = ref<Pick<User, "id" | "name">[]>();
+const orderItems = ref<{ book: Book; qty: number; item_price: number }[]>([])
+const qtyCount = ref(1)
+const books = ref<Book[]>()
+const selectedBook = ref<Book>()
+const selectedCustomer = ref<User>()
+const customers = ref<Pick<User, 'id' | 'name'>[]>()
 
 const itemPricePreview = computed(() => {
   if (selectedBook.value && books.value) {
-    return selectedBook.value.price * qtyCount.value;
+    return selectedBook.value.price * qtyCount.value
   } else {
-    return 0;
+    return 0
   }
-});
+})
 
 const totalAmount = computed(() => {
   if (selectedBook.value && books.value) {
-    return orderItems.value.reduce((acc, obj) => acc + obj.item_price, 0);
+    return orderItems.value.reduce((acc, obj) => acc + obj.item_price, 0)
   } else {
-    return 0;
+    return 0
   }
-});
+})
 
 function addOrderItem() {
   if (selectedBook.value) {
-    const existingItemIndex = orderItems.value.findIndex(
-      (item) => item.book.id === selectedBook.value?.id
-    );
+    const existingItemIndex = orderItems.value.findIndex((item) => item.book.id === selectedBook.value?.id)
 
     if (existingItemIndex !== -1) {
-      orderItems.value[existingItemIndex].qty += qtyCount.value;
-      orderItems.value[existingItemIndex].item_price +=
-        qtyCount.value * selectedBook.value.price;
+      orderItems.value[existingItemIndex].qty += qtyCount.value
+      orderItems.value[existingItemIndex].item_price += qtyCount.value * selectedBook.value.price
     } else {
       orderItems.value.push({
         book: toRaw(selectedBook.value),
         qty: qtyCount.value,
         item_price: qtyCount.value * selectedBook.value.price,
-      });
+      })
     }
 
-    qtyCount.value = 1;
+    qtyCount.value = 1
   }
 }
 
 function removeOrderItem(index: number) {
-  orderItems.value = orderItems.value.filter((item, i) => i !== index);
+  orderItems.value = orderItems.value.filter((item, i) => i !== index)
 }
 
 async function getBooks() {
-  await useApiFetch("/sanctum/csrf-cookie");
+  await useApiFetch('/sanctum/csrf-cookie')
 
-  const result = await useApiFetch("/api/v1/admin/books?forDropdown=true", {
-    method: "GET",
+  const result = await useApiFetch('/api/v1/admin/books?forDropdown=true', {
+    method: 'GET',
     headers: {
-      Accept: "application/json",
+      Accept: 'application/json',
     },
-  });
+  })
 
   if (result?.error.value) {
-    alert(result.error.value.message);
-    return;
+    alert(result.error.value.message)
+    return
   }
 
-  books.value = (result.data.value as any).data;
+  books.value = (result.data.value as any).data
 }
 
 async function getCustomers() {
-  await useApiFetch("/sanctum/csrf-cookie");
+  await useApiFetch('/sanctum/csrf-cookie')
 
-  const result = await useApiFetch("/api/v1/admin/customers?forDropdown=true", {
+  const result = await useApiFetch('/api/v1/admin/customers?forDropdown=true', {
     headers: {
-      Accept: "application/json",
+      Accept: 'application/json',
     },
-  });
+  })
 
   if (result?.error.value) {
-    alert(result.error.value?.message);
-    return;
+    alert(result.error.value?.message)
+    return
   }
 
-  customers.value = (result.data.value as any).data as Author[];
+  customers.value = (result.data.value as any).data as Author[]
 }
 
 async function submit() {
-  await useApiFetch("/sanctum/csrf-cookie");
+  await useApiFetch('/sanctum/csrf-cookie')
 
   const form = {
     user_id: selectedCustomer.value?.id,
-    order_date: dayjs().format("YYYY-MM-DD HH:mm:ss"),
+    order_date: dayjs().format('YYYY-MM-DD HH:mm:ss'),
     total_amount: totalAmount.value,
     order_items: orderItems.value.map((item) => {
       return {
         book: toRaw(item.book),
         qty: item.qty,
         item_price: item.item_price,
-      };
+      }
     }),
-  };
+  }
 
-  const result = await useApiFetch("/api/v1/admin/orders", {
-    method: "POST",
+  const result = await useApiFetch('/api/v1/admin/orders', {
+    method: 'POST',
     body: form,
     headers: {
-      Accept: "application/json",
+      Accept: 'application/json',
     },
-  });
+  })
 
   if (result?.error.value) {
-    alert(result.error.value.message);
-    errorMsg.value = result.error.value?.data.errors;
-    return;
+    alert(result.error.value.message)
+    errorMsg.value = result.error.value?.data.errors
+    return
   }
-  emits("refresh");
-  emits("close");
+  emits('refresh')
+  emits('close')
 }
 
 function incrementQty() {
-  qtyCount.value = qtyCount.value + 1;
+  qtyCount.value = qtyCount.value + 1
 }
 
 function decrementQty() {
-  if (qtyCount.value === 1) return;
-  qtyCount.value = qtyCount.value - 1;
+  if (qtyCount.value === 1) return
+  qtyCount.value = qtyCount.value - 1
 }
 
 onMounted(async () => {
-  await getBooks();
-  await getCustomers();
-});
+  await getBooks()
+  await getCustomers()
+})
 </script>
 
 <template>
@@ -146,23 +143,13 @@ onMounted(async () => {
     <div class="custom-modal">
       <div class="custom-modal__header">
         <div>Add new order</div>
-        <button
-          type="button"
-          class="btn-close"
-          aria-label="Close"
-          @click="$emit('close')"
-        ></button>
+        <button type="button" class="btn-close" aria-label="Close" @click="$emit('close')"></button>
       </div>
 
       <div class="custom-modal__body">
         <div class="text-sm fw-bold mb-2">Order Items:</div>
         <div>
-          <div
-            class="text-muted text-sm text-center my-3"
-            v-if="!orderItems.length"
-          >
-            No Order Items
-          </div>
+          <div class="text-muted text-sm text-center my-3" v-if="!orderItems.length">No Order Items</div>
 
           <!-- Order Item card -->
           <div
@@ -172,9 +159,7 @@ onMounted(async () => {
             v-else
           >
             <div class="card-body p-3">
-              <div
-                class="d-flex justify-content-between align-items-center gap-4"
-              >
+              <div class="d-flex justify-content-between align-items-center gap-4">
                 <div>
                   <img
                     :src="item.book.cover_image"
@@ -195,15 +180,11 @@ onMounted(async () => {
                   <h4 class="card-title text-lg">{{ item.book.title }}</h4>
                   <div>
                     <ul style="margin: 0 !important; padding: 0 !important">
-                      <li
-                        class="d-flex justify-content-between align-items-center text-sm mb-2"
-                      >
+                      <li class="d-flex justify-content-between align-items-center text-sm mb-2">
                         <div style="font-weight: 500">Qty</div>
                         <div>{{ item.qty }}</div>
                       </li>
-                      <li
-                        class="d-flex justify-content-between align-items-center text-sm"
-                      >
+                      <li class="d-flex justify-content-between align-items-center text-sm">
                         <div style="font-weight: 500">Item Price</div>
                         <div class="text-primary fw-bold">
                           {{ toRupiah(item.item_price, { floatingPoint: 0 }) }}
@@ -230,10 +211,7 @@ onMounted(async () => {
             </button>
           </div>
 
-          <div
-            class="d-flex align-items-center justify-content-between"
-            v-if="orderItems"
-          >
+          <div class="d-flex align-items-center justify-content-between" v-if="orderItems">
             <div>Total Amount:</div>
             <div class="text-primary fw-bold">
               {{ toRupiah(totalAmount, { floatingPoint: 0 }) }}
@@ -266,15 +244,8 @@ onMounted(async () => {
           <div class="col-9">
             <!-- Customer Selector -->
             <div class="input-group mb-3">
-              <label class="input-group-text" for="customer-selector"
-                >Customer</label
-              >
-              <select
-                class="form-select"
-                id="customer-selector"
-                v-model="selectedCustomer"
-                v-if="customers"
-              >
+              <label class="input-group-text" for="customer-selector">Customer</label>
+              <select class="form-select" id="customer-selector" v-model="selectedCustomer" v-if="customers">
                 <option selected disabled>Choose...</option>
                 <option v-for="customer in customers" :value="customer">
                   {{ customer.id }}
@@ -287,12 +258,7 @@ onMounted(async () => {
             <!-- Book selector -->
             <div class="input-group mb-3">
               <label class="input-group-text" for="book-selector">Book</label>
-              <select
-                class="form-select"
-                id="book-selector"
-                v-model="selectedBook"
-                v-if="books"
-              >
+              <select class="form-select" id="book-selector" v-model="selectedBook" v-if="books">
                 <option selected disabled>Choose...</option>
                 <option v-for="book in books" :value="book">
                   <!-- • -->
@@ -311,9 +277,7 @@ onMounted(async () => {
 
             <!-- Qty -->
             <div class="d-flex justify-content-between align-items-center">
-              <div class="text-sm">
-                Qty {{ `(${selectedBook?.stock_qty ?? 0})` }}
-              </div>
+              <div class="text-sm">Qty {{ `(${selectedBook?.stock_qty ?? 0})` }}</div>
               <div class="form-group">
                 <div class="input-group input-group-sm">
                   <button
@@ -325,10 +289,7 @@ onMounted(async () => {
                   >
                     -
                   </button>
-                  <span
-                    class="border-top border-bottom text-sm px-3 d-flex align-items-center"
-                    >{{ qtyCount }}</span
-                  >
+                  <span class="border-top border-bottom text-sm px-3 d-flex align-items-center">{{ qtyCount }}</span>
                   <button
                     class="btn btn-outline-success"
                     type="button"
@@ -356,8 +317,8 @@ onMounted(async () => {
                 class="btn btn-outline-danger btn-sm col-2"
                 @click="
                   () => {
-                    selectedBook = undefined;
-                    qtyCount = 1;
+                    selectedBook = undefined
+                    qtyCount = 1
                   }
                 "
               >
@@ -369,19 +330,8 @@ onMounted(async () => {
       </div>
 
       <div class="custom-modal__footer">
-        <button
-          type="button"
-          class="btn btn-light btn-sm"
-          @click="$emit('close')"
-        >
-          Cancel
-        </button>
-        <button
-          type="submit"
-          class="btn btn-primary btn-sm"
-          @click="submit"
-          :disabled="orderItems.length === 0"
-        >
+        <button type="button" class="btn btn-light btn-sm" @click="$emit('close')">Cancel</button>
+        <button type="submit" class="btn btn-primary btn-sm" @click="submit" :disabled="orderItems.length === 0">
           Submit
         </button>
       </div>

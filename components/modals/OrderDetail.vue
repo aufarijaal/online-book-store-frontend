@@ -1,43 +1,43 @@
 <script lang="ts" setup>
-import toRupiah from "@develoka/angka-rupiah-js";
+import toRupiah from '@develoka/angka-rupiah-js'
 
 const props = defineProps<{
-  orderId: number;
-}>();
-const emits = defineEmits(["close"]);
-const orderDetail = ref();
+  orderId: number
+}>()
+const emits = defineEmits(['close'])
+const orderDetail = ref()
 
 async function getOrderDetail() {
-  await useApiFetch("/sanctum/csrf-cookie");
+  await useApiFetch('/sanctum/csrf-cookie')
 
-  const result = await useApiFetch("/api/v1/admin/orders/" + props.orderId, {
-    method: "GET",
+  const result = await useApiFetch('/api/v1/admin/orders/' + props.orderId, {
+    method: 'GET',
     headers: {
-      Accept: "application/json",
+      Accept: 'application/json',
     },
-  });
+  })
 
   if (result?.error.value) {
-    alert(result.error.value.message);
-    return;
+    alert(result.error.value.message)
+    return
   }
 
-  orderDetail.value = (result.data.value as any).data;
+  orderDetail.value = (result.data.value as any).data
 }
 
 onMounted(async () => {
-  await getOrderDetail();
+  await getOrderDetail()
 
-  document.addEventListener("keyup", (e) => {
-    if (e.key === "Escape") emits("close");
-  });
-});
+  document.addEventListener('keyup', (e) => {
+    if (e.key === 'Escape') emits('close')
+  })
+})
 
 onBeforeUnmount(() => {
-  document.removeEventListener("keyup", (e) => {
-    if (e.key === "Escape") emits("close");
-  });
-});
+  document.removeEventListener('keyup', (e) => {
+    if (e.key === 'Escape') emits('close')
+  })
+})
 </script>
 
 <template>
@@ -48,12 +48,7 @@ onBeforeUnmount(() => {
           Order Detail
           <span class="badge rounded-pill bg-primary">ID: {{ orderId }}</span>
         </div>
-        <button
-          type="button"
-          class="btn-close"
-          aria-label="Close"
-          @click="$emit('close')"
-        ></button>
+        <button type="button" class="btn-close" aria-label="Close" @click="$emit('close')"></button>
       </div>
 
       <div class="custom-modal__body">
@@ -79,9 +74,7 @@ onBeforeUnmount(() => {
           v-if="orderDetail"
         >
           <div class="card-body p-3">
-            <div
-              class="d-flex justify-content-between align-items-center gap-4"
-            >
+            <div class="d-flex justify-content-between align-items-center gap-4">
               <div>
                 <img
                   :src="item.book.cover_image"
@@ -102,15 +95,11 @@ onBeforeUnmount(() => {
                 <h4 class="card-title text-lg">{{ item.book.title }}</h4>
                 <div>
                   <ul style="margin: 0 !important; padding: 0 !important">
-                    <li
-                      class="d-flex justify-content-between align-items-center text-sm mb-2"
-                    >
+                    <li class="d-flex justify-content-between align-items-center text-sm mb-2">
                       <div style="font-weight: 500">Qty</div>
                       <div>{{ item.qty }}</div>
                     </li>
-                    <li
-                      class="d-flex justify-content-between align-items-center text-sm"
-                    >
+                    <li class="d-flex justify-content-between align-items-center text-sm">
                       <div style="font-weight: 500">Item Price</div>
                       <div class="text-primary fw-bold">
                         {{ toRupiah(item.item_price, { floatingPoint: 0 }) }}
@@ -131,10 +120,7 @@ onBeforeUnmount(() => {
           v-for="n in 3"
         ></div>
 
-        <div
-          class="d-flex align-items-center justify-content-between"
-          v-if="orderDetail"
-        >
+        <div class="d-flex align-items-center justify-content-between" v-if="orderDetail">
           <div class="fs-6">Total Amount</div>
           <div class="fs-6 text-success fw-bold">
             {{ toRupiah(orderDetail.total_amount, { floatingPoint: 0 }) }}
@@ -150,13 +136,7 @@ onBeforeUnmount(() => {
       </div>
 
       <div class="custom-modal__footer">
-        <button
-          type="button"
-          class="btn btn-light btn-sm"
-          @click="$emit('close')"
-        >
-          Close
-        </button>
+        <button type="button" class="btn btn-light btn-sm" @click="$emit('close')">Close</button>
       </div>
     </div>
   </div>

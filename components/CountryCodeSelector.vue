@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import countries from "~/static/countries.json";
+import countries from '~/static/countries.json'
 
-const model = defineModel();
-const props = defineProps<{ default?: string }>();
+const model = defineModel()
+const props = defineProps<{ default?: string }>()
 </script>
 
 <template>

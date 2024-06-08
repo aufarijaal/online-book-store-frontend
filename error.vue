@@ -1,15 +1,15 @@
 <script lang="ts" setup>
-import type { NuxtError } from "#app";
-const auth = useAuthStore();
-const router = useRouter();
+import type { NuxtError } from '#app'
+const auth = useAuthStore()
+const router = useRouter()
 
 const props = defineProps({
   error: Object as () => NuxtError,
-});
+})
 
 useHead({
-  title: "Oops..",
-});
+  title: 'Oops..',
+})
 </script>
 
 <template>
@@ -19,11 +19,7 @@ useHead({
         <div class="error-container">
           <div class="error-code">{{ error?.statusCode }}</div>
           <div class="error-message">{{ error?.message }}</div>
-          <a
-            class="btn btn-primary btn-back"
-            :href="auth.user?.is_admin === '1' ? '/admin' : '/'"
-            >Back to home</a
-          >
+          <a class="btn btn-primary btn-back" :href="auth.user?.is_admin === '1' ? '/admin' : '/'">Back to home</a>
         </div>
       </div>
     </div>

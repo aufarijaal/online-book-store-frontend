@@ -1,156 +1,142 @@
 <script lang="ts" setup>
-import toRupiah from "@develoka/angka-rupiah-js";
+import toRupiah from '@develoka/angka-rupiah-js'
 
 interface OrderResponse {
-  message: string;
-  data: DataResponse<OrderWithCustomer>;
+  message: string
+  data: DataResponse<OrderWithCustomer>
 }
 
-const auth = useAuthStore();
+const auth = useAuthStore()
 
 definePageMeta({
-  layout: "admin",
-  middleware: ["authenticated", "admin"],
-});
+  layout: 'admin',
+  middleware: ['authenticated', 'admin'],
+})
 
 useHead({
-  title: "Admin · Orders",
-});
+  title: 'Admin · Orders',
+})
 
-const route = useRoute();
-const router = useRouter();
-const orderResponse = ref<OrderResponse>();
-const sizePerPage = ref(20);
-const currentPage = ref(0);
-const selectedIds = ref<number[]>([]);
-const showAddOrderModal = ref(false);
-const showEditOrderModal = ref(false);
-const showOrderDetailModal = ref(false);
-const orderIdToShowTheDetail = ref(0);
-const searchInput = ref("");
-const sort = ref<{ by: string; order: "asc" | "desc" }>({
-  by: "id",
-  order: "asc",
-});
-const orderToEdit = ref<
-  Pick<Order, "id" | "order_date" | "user_id" | "total_amount">
->({
+const route = useRoute()
+const router = useRouter()
+const orderResponse = ref<OrderResponse>()
+const sizePerPage = ref(20)
+const currentPage = ref(0)
+const selectedIds = ref<number[]>([])
+const showAddOrderModal = ref(false)
+const showEditOrderModal = ref(false)
+const showOrderDetailModal = ref(false)
+const orderIdToShowTheDetail = ref(0)
+const searchInput = ref('')
+const sort = ref<{ by: string; order: 'asc' | 'desc' }>({
+  by: 'id',
+  order: 'asc',
+})
+const orderToEdit = ref<Pick<Order, 'id' | 'order_date' | 'user_id' | 'total_amount'>>({
   id: 0,
   user_id: 0,
-  order_date: "",
+  order_date: '',
   total_amount: 0,
-});
+})
 
 async function getOrders() {
-  await useApiFetch("/sanctum/csrf-cookie");
+  await useApiFetch('/sanctum/csrf-cookie')
 
   const params = new URLSearchParams({
     page: currentPage.value.toString(),
     sizePerPage: sizePerPage.value.toString(),
     q: searchInput.value,
-  });
+  })
 
-  const result = await useApiFetch("/api/v1/admin/orders?" + params, {
+  const result = await useApiFetch('/api/v1/admin/orders?' + params, {
     headers: {
-      Accept: "application/json",
+      Accept: 'application/json',
     },
-  });
+  })
 
   if (result?.error.value) {
-    alert(result.error.value?.data.errors);
-    return;
+    alert(result.error.value?.data.errors)
+    return
   }
 
-  orderResponse.value = result.data.value as OrderResponse;
+  orderResponse.value = result.data.value as OrderResponse
 }
 
 async function editOrder() {
-  await useApiFetch("/sanctum/csrf-cookie");
+  await useApiFetch('/sanctum/csrf-cookie')
 
-  const result = await useApiFetch(
-    `/api/v1/admin/orders/${selectedIds.value[0]}/edit`,
-    {
-      headers: {
-        Accept: "application/json",
-      },
-    }
-  );
+  const result = await useApiFetch(`/api/v1/admin/orders/${selectedIds.value[0]}/edit`, {
+    headers: {
+      Accept: 'application/json',
+    },
+  })
 
   if (result?.error.value) {
-    alert(result.error.value?.data.errors);
-    return;
+    alert(result.error.value?.data.errors)
+    return
   }
 
-  orderToEdit.value.id = selectedIds.value[0];
-  orderToEdit.value.user_id = (result.data.value as any).data.user_id;
-  orderToEdit.value.order_date = (result.data.value as any).data.order_date;
-  orderToEdit.value.total_amount = (result.data.value as any).data.total_amount;
+  orderToEdit.value.id = selectedIds.value[0]
+  orderToEdit.value.user_id = (result.data.value as any).data.user_id
+  orderToEdit.value.order_date = (result.data.value as any).data.order_date
+  orderToEdit.value.total_amount = (result.data.value as any).data.total_amount
 
-  showEditOrderModal.value = true;
+  showEditOrderModal.value = true
 }
 
 async function deleteOrders() {
-  let message = "";
+  let message = ''
   if (selectedIds.value.length === 1) {
-    message = `Are you sure you want to delete a order with id ${selectedIds.value[0]}?`;
+    message = `Are you sure you want to delete a order with id ${selectedIds.value[0]}?`
   } else if (selectedIds.value.length === 2) {
-    message = `Are you sure want to delete a orders with id ${selectedIds.value[0]} and ${selectedIds.value[1]}?`;
+    message = `Are you sure want to delete a orders with id ${selectedIds.value[0]} and ${selectedIds.value[1]}?`
   } else {
-    const lastId = selectedIds.value[selectedIds.value.length - 1];
-    const idsString = selectedIds.value
-      .slice(0, selectedIds.value.length - 1)
-      .join(", ");
-    message = `Are you sure you want to delete orders with id ${idsString}, and ${lastId}?`;
+    const lastId = selectedIds.value[selectedIds.value.length - 1]
+    const idsString = selectedIds.value.slice(0, selectedIds.value.length - 1).join(', ')
+    message = `Are you sure you want to delete orders with id ${idsString}, and ${lastId}?`
   }
 
   if (confirm(message)) {
-    await useApiFetch("/sanctum/csrf-cookie");
+    await useApiFetch('/sanctum/csrf-cookie')
 
-    const result = await useApiFetch(
-      "/api/v1/admin/orders?ids=" + selectedIds.value.join(","),
-      {
-        method: "DELETE",
-        headers: {
-          Accept: "application/json",
-        },
-      }
-    );
+    const result = await useApiFetch('/api/v1/admin/orders?ids=' + selectedIds.value.join(','), {
+      method: 'DELETE',
+      headers: {
+        Accept: 'application/json',
+      },
+    })
 
     if (result?.error.value) {
-      alert(result.error.value?.data.errors);
-      return;
+      alert(result.error.value?.data.errors)
+      return
     }
 
-    selectedIds.value = [];
-    await getOrders();
+    selectedIds.value = []
+    await getOrders()
   } else {
-    selectedIds.value = [];
+    selectedIds.value = []
   }
 }
 
 watch([sizePerPage, currentPage], async () => {
-  await getOrders();
-});
+  await getOrders()
+})
 
 onMounted(async () => {
   if (route.query.redirectToPage) {
-    currentPage.value = parseInt(route.query.redirectToPage.toString());
+    currentPage.value = parseInt(route.query.redirectToPage.toString())
   } else {
-    currentPage.value = 1;
+    currentPage.value = 1
   }
 
-  await getOrders();
-});
+  await getOrders()
+})
 </script>
 
 <template>
   <div class="p-4 pt-0">
     <Teleport to="body">
-      <ModalsAddOrder
-        v-if="showAddOrderModal"
-        @close="showAddOrderModal = false"
-        @refresh="getOrders"
-      />
+      <ModalsAddOrder v-if="showAddOrderModal" @close="showAddOrderModal = false" @refresh="getOrders" />
       <!-- <ModalsEditGenre
         v-if="showEditOrderModal"
         :genre="orderToEdit"
@@ -177,12 +163,7 @@ onMounted(async () => {
             v-model="searchInput"
             @keyup.enter="getOrders"
           />
-          <button
-            class="btn btn-primary"
-            type="button"
-            id="button-search"
-            @click="getOrders"
-          >
+          <button class="btn btn-primary" type="button" id="button-search" @click="getOrders">
             <SearchIcon width="20" height="20" />
           </button>
         </div>
@@ -204,8 +185,8 @@ onMounted(async () => {
                 class="dropdown-item"
                 @click="
                   () => {
-                    currentPage = 1;
-                    sizePerPage = 20;
+                    currentPage = 1
+                    sizePerPage = 20
                   }
                 "
               >
@@ -217,8 +198,8 @@ onMounted(async () => {
                 class="dropdown-item"
                 @click="
                   () => {
-                    currentPage = 1;
-                    sizePerPage = 50;
+                    currentPage = 1
+                    sizePerPage = 50
                   }
                 "
               >
@@ -230,8 +211,8 @@ onMounted(async () => {
                 class="dropdown-item"
                 @click="
                   () => {
-                    currentPage = 1;
-                    sizePerPage = 100;
+                    currentPage = 1
+                    sizePerPage = 100
                   }
                 "
               >
@@ -244,29 +225,16 @@ onMounted(async () => {
 
       <!-- Data Table -->
       <div class="card">
-        <h5
-          class="card-header d-flex align-items-center justify-content-between"
-        >
+        <h5 class="card-header d-flex align-items-center justify-content-between">
           <div class="fs-5">Orders</div>
           <div class="d-flex align-items-center gap-2">
-            <button
-              class="btn btn-primary btn-sm"
-              @click="showAddOrderModal = true"
-            >
+            <button class="btn btn-primary btn-sm" @click="showAddOrderModal = true">
               <PlusIcon />
             </button>
-            <button
-              class="btn btn-success btn-sm"
-              :disabled="!selectedIds.length"
-              @click="editOrder"
-            >
+            <button class="btn btn-success btn-sm" :disabled="!selectedIds.length" @click="editOrder">
               <PencilIcon />
             </button>
-            <button
-              class="btn btn-danger btn-sm"
-              :disabled="!selectedIds.length"
-              @click="deleteOrders"
-            >
+            <button class="btn btn-danger btn-sm" :disabled="!selectedIds.length" @click="deleteOrders">
               <TrashIcon />
               ({{ selectedIds.length }})
             </button>
@@ -280,10 +248,7 @@ onMounted(async () => {
             </button>
           </div>
         </h5>
-        <div
-          class="table-responsive text-nowrap"
-          style="max-height: calc(100vh - 300px)"
-        >
+        <div class="table-responsive text-nowrap" style="max-height: calc(100vh - 300px)">
           <table class="table table-striped" v-if="orderResponse">
             <thead>
               <tr>
@@ -292,14 +257,14 @@ onMounted(async () => {
                     <input
                       class="form-check-input"
                       type="checkbox"
-                      @change="(e) => {
-                        if((e.target as HTMLInputElement).checked && orderResponse) {
-                          selectedIds = orderResponse?.data.data.map(item => item.id);
-                        } else selectedIds = [];
-                      }"
-                      :checked="
-                        selectedIds.length === orderResponse.data.data.length
+                      @change="
+                        (e) => {
+                          if ((e.target as HTMLInputElement).checked && orderResponse) {
+                            selectedIds = orderResponse?.data.data.map((item) => item.id)
+                          } else selectedIds = []
+                        }
                       "
+                      :checked="selectedIds.length === orderResponse.data.data.length"
                       style="transform: scale(1.4)"
                     />
                   </div>
@@ -311,24 +276,15 @@ onMounted(async () => {
                 </th>
                 <th>
                   Customer
-                  <OrderArrow
-                    v-if="sort.by === 'customer_id'"
-                    :order="sort.order"
-                  />
+                  <OrderArrow v-if="sort.by === 'customer_id'" :order="sort.order" />
                 </th>
                 <th>
                   Order Date
-                  <OrderArrow
-                    v-if="sort.by === 'order_date'"
-                    :order="sort.order"
-                  />
+                  <OrderArrow v-if="sort.by === 'order_date'" :order="sort.order" />
                 </th>
                 <th>
                   Total Amount
-                  <OrderArrow
-                    v-if="sort.by === 'total_amount'"
-                    :order="sort.order"
-                  />
+                  <OrderArrow v-if="sort.by === 'total_amount'" :order="sort.order" />
                 </th>
               </tr>
             </thead>
@@ -339,11 +295,13 @@ onMounted(async () => {
                     <input
                       class="form-check-input"
                       type="checkbox"
-                      @change="(e) => {
-                        if((e.target as HTMLInputElement).checked) {
-                          selectedIds.push(order.id);
-                        } else selectedIds = selectedIds.filter(item => item !== order.id);
-                      }"
+                      @change="
+                        (e) => {
+                          if ((e.target as HTMLInputElement).checked) {
+                            selectedIds.push(order.id)
+                          } else selectedIds = selectedIds.filter((item) => item !== order.id)
+                        }
+                      "
                       :checked="selectedIds.includes(order.id)"
                       :id="`mark-${order.id}`"
                       style="transform: scale(1.4)"
@@ -356,8 +314,8 @@ onMounted(async () => {
                     style="cursor: pointer"
                     @click="
                       () => {
-                        orderIdToShowTheDetail = order.id;
-                        showOrderDetailModal = true;
+                        orderIdToShowTheDetail = order.id
+                        showOrderDetailModal = true
                       }
                     "
                     >See detail</span
@@ -394,11 +352,10 @@ onMounted(async () => {
       <div class="d-flex justify-content-between mt-2">
         <div v-if="orderResponse">
           Showing
-          {{
-            orderResponse?.data.per_page! * orderResponse?.data.current_page!
-
-
-          }}/{{ orderResponse?.data.total }} entries
+          {{ orderResponse?.data.per_page! * orderResponse?.data.current_page! }}/{{
+            orderResponse?.data.total
+          }}
+          entries
         </div>
         <div v-else>Loading...</div>
 
@@ -407,26 +364,18 @@ onMounted(async () => {
           <ul class="pagination pagination-sm">
             <li class="page-item" v-for="page in orderResponse?.data.links">
               <div
-                :class="[
-                  'page-link',
-                  page.active ? 'active' : '',
-                  page.url ? '' : 'disabled',
-                ]"
+                :class="['page-link', page.active ? 'active' : '', page.url ? '' : 'disabled']"
                 style="cursor: pointer"
                 @click="
                   currentPage = page.label.includes('Prev')
                     ? orderResponse?.data.current_page! - 1
                     : page.label.includes('Next')
-                    ? orderResponse?.data.current_page! + 1
-                    : parseInt(page.label)
+                      ? orderResponse?.data.current_page! + 1
+                      : parseInt(page.label)
                 "
                 :title="`page ${page.label.includes('Prev') ? orderResponse?.data.current_page! - 1 : page.label.includes('Next') ? orderResponse?.data.current_page! + 1 : parseInt(page.label)}`"
               >
-                {{
-                  page.label
-                    .replaceAll("&amp;laquo;", "")
-                    .replaceAll("&amp;raquo;", "")
-                }}
+                {{ page.label.replaceAll('&amp;laquo;', '').replaceAll('&amp;raquo;', '') }}
               </div>
             </li>
           </ul>

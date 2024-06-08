@@ -1,44 +1,44 @@
 <script lang="ts" setup>
-const addresses = ref<Omit<Address[], "id">>();
-const addressToEdit = ref<Address>();
-const showEditAddressModal = ref(false);
-const errorMsg = ref("");
+const addresses = ref<Omit<Address[], 'id'>>()
+const addressToEdit = ref<Address>()
+const showEditAddressModal = ref(false)
+const errorMsg = ref('')
 
 async function getAddresses() {
-  await useApiFetch("/sanctum/csrf-cookie");
-  const result = await useApiFetch("/api/v1/addresses");
+  await useApiFetch('/sanctum/csrf-cookie')
+  const result = await useApiFetch('/api/v1/addresses')
 
   if (result.error.value) {
-    errorMsg.value = result.error.value.message;
-    return;
+    errorMsg.value = result.error.value.message
+    return
   }
 
-  addresses.value = (result.data.value as any).data as Address[];
+  addresses.value = (result.data.value as any).data as Address[]
 }
 
 async function remove(id: number, addressName: string) {
   if (confirm(`Are you sure want to delete ${addressName} ?`)) {
-    await useApiFetch("/sanctum/csrf-cookie");
+    await useApiFetch('/sanctum/csrf-cookie')
 
-    const result = await useApiFetch("/api/v1/addresses/" + id, {
-      method: "DELETE",
+    const result = await useApiFetch('/api/v1/addresses/' + id, {
+      method: 'DELETE',
       headers: {
-        Accept: "application/json",
+        Accept: 'application/json',
       },
-    });
+    })
 
     if (result.error.value) {
-      errorMsg.value = result.error.value.message;
-      return;
+      errorMsg.value = result.error.value.message
+      return
     }
 
-    await getAddresses();
+    await getAddresses()
   }
 }
 
 onMounted(async () => {
-  await getAddresses();
-});
+  await getAddresses()
+})
 </script>
 
 <template>
@@ -57,20 +57,15 @@ onMounted(async () => {
         @delete="remove(address.id, address.name)"
         @edit="
           () => {
-            addressToEdit = address;
-            showEditAddressModal = true;
+            addressToEdit = address
+            showEditAddressModal = true
           }
         "
       />
     </ul>
 
     <!-- Button trigger modal -->
-    <button
-      type="button"
-      class="btn btn-primary"
-      data-bs-toggle="modal"
-      data-bs-target="#addAddressModal"
-    >
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addAddressModal">
       Add new address
     </button>
   </div>
@@ -82,8 +77,8 @@ onMounted(async () => {
       :address="addressToEdit"
       @close="
         () => {
-          addressToEdit = undefined;
-          showEditAddressModal = false;
+          addressToEdit = undefined
+          showEditAddressModal = false
         }
       "
       @refresh="getAddresses"

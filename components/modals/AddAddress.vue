@@ -1,39 +1,39 @@
 <script lang="ts" setup>
 const form = ref({
-  name: "",
-  full_address: "",
-  city: "",
-  state: "",
-  country: "",
-  postal_code: "",
+  name: '',
+  full_address: '',
+  city: '',
+  state: '',
+  country: '',
+  postal_code: '',
   is_active: false,
-});
+})
 const errorMsg = ref<{
-  name: string[];
-  full_address: string[];
-  city: string[];
-  state: string[];
-  country: string[];
-  postal_code: string[];
-  is_active: string[];
-}>();
+  name: string[]
+  full_address: string[]
+  city: string[]
+  state: string[]
+  country: string[]
+  postal_code: string[]
+  is_active: string[]
+}>()
 
-const emits = defineEmits(["refresh"]);
+const emits = defineEmits(['refresh'])
 
 async function submit() {
-  await useApiFetch("/sanctum/csrf-cookie");
+  await useApiFetch('/sanctum/csrf-cookie')
 
-  const result = await useApiFetch("/api/v1/addresses", {
-    method: "POST",
+  const result = await useApiFetch('/api/v1/addresses', {
+    method: 'POST',
     body: form.value,
-  });
+  })
 
   if (result?.error.value) {
-    errorMsg.value = result.error.value?.data.errors;
-    return;
+    errorMsg.value = result.error.value?.data.errors
+    return
   }
 
-  emits("refresh");
+  emits('refresh')
 }
 </script>
 
@@ -50,15 +50,8 @@ async function submit() {
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="addAddressModalLabel">
-              Add new address
-            </h5>
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-              aria-label="Close"
-            ></button>
+            <h5 class="modal-title" id="addAddressModalLabel">Add new address</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
             <form id="add-addrress-form" @submit.prevent="submit">
@@ -83,9 +76,7 @@ async function submit() {
               </div>
 
               <div class="mb-3">
-                <label for="full_address" class="form-label"
-                  >Full Address</label
-                >
+                <label for="full_address" class="form-label">Full Address</label>
                 <input
                   type="text"
                   class="form-control"
@@ -200,9 +191,7 @@ async function submit() {
                   v-model="form.is_active"
                   aria-describedby="isActiveHelp"
                 />
-                <label class="form-check-label" for="is_active"
-                  >Set as active</label
-                >
+                <label class="form-check-label" for="is_active">Set as active</label>
                 <div
                   id="isActiveHelp"
                   class="form-text text-xs text-danger"
@@ -215,20 +204,8 @@ async function submit() {
             </form>
           </div>
           <div class="modal-footer">
-            <button
-              type="button"
-              class="btn btn-secondary"
-              data-bs-dismiss="modal"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              form="add-addrress-form"
-              class="btn btn-primary"
-            >
-              Submit
-            </button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" form="add-addrress-form" class="btn btn-primary">Submit</button>
           </div>
         </div>
       </div>

@@ -1,39 +1,39 @@
 <script lang="ts" setup>
-const emits = defineEmits(["refresh", "close"]);
+const emits = defineEmits(['refresh', 'close'])
 const props = defineProps<{
-  genre: Pick<Genre, "id" | "name" | "description">;
-}>();
+  genre: Pick<Genre, 'id' | 'name' | 'description'>
+}>()
 
 const form = ref({
   id: props.genre.id,
   name: props.genre.name,
   description: props.genre.description,
-});
+})
 
 const errorMsg = ref<{
-  id: string[];
-  name: string[];
-  description: string[];
-}>();
+  id: string[]
+  name: string[]
+  description: string[]
+}>()
 
 async function submit() {
-  await useApiFetch("/sanctum/csrf-cookie");
+  await useApiFetch('/sanctum/csrf-cookie')
 
-  const result = await useApiFetch("/api/v1/admin/genres/" + props.genre.id, {
-    method: "PUT",
+  const result = await useApiFetch('/api/v1/admin/genres/' + props.genre.id, {
+    method: 'PUT',
     body: form.value,
     headers: {
-      Accept: "application/json",
+      Accept: 'application/json',
     },
-  });
+  })
 
   if (result?.error.value) {
-    alert(result.error.value.message);
-    errorMsg.value = result.error.value?.data.errors;
-    return;
+    alert(result.error.value.message)
+    errorMsg.value = result.error.value?.data.errors
+    return
   }
-  emits("refresh");
-  emits("close");
+  emits('refresh')
+  emits('close')
 }
 </script>
 
@@ -42,12 +42,7 @@ async function submit() {
     <div class="custom-modal">
       <div class="custom-modal__header">
         <div>Edit genre</div>
-        <button
-          type="button"
-          class="btn-close"
-          aria-label="Close"
-          @click="$emit('close')"
-        ></button>
+        <button type="button" class="btn-close" aria-label="Close" @click="$emit('close')"></button>
       </div>
 
       <div class="custom-modal__body">
@@ -101,20 +96,8 @@ async function submit() {
       </div>
 
       <div class="custom-modal__footer">
-        <button
-          type="button"
-          class="btn btn-light btn-sm"
-          @click="$emit('close')"
-        >
-          Cancel
-        </button>
-        <button
-          type="submit"
-          form="edit-genre-form"
-          class="btn btn-primary btn-sm"
-        >
-          Submit
-        </button>
+        <button type="button" class="btn btn-light btn-sm" @click="$emit('close')">Cancel</button>
+        <button type="submit" form="edit-genre-form" class="btn btn-primary btn-sm">Submit</button>
       </div>
     </div>
   </div>

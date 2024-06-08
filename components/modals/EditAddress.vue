@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-const props = defineProps<{ address?: Address }>();
-const emits = defineEmits(["refresh", "close"]);
+const props = defineProps<{ address?: Address }>()
+const emits = defineEmits(['refresh', 'close'])
 const form = ref({
   name: props.address?.name,
   full_address: props.address?.full_address,
@@ -9,36 +9,36 @@ const form = ref({
   country: props.address?.country,
   postal_code: props.address?.postal_code,
   is_active: props.address?.is_active ? true : false,
-});
+})
 
 const errorMsg = ref<{
-  name: string[];
-  full_address: string[];
-  city: string[];
-  state: string[];
-  country: string[];
-  postal_code: string[];
-  is_active: string[];
-}>();
+  name: string[]
+  full_address: string[]
+  city: string[]
+  state: string[]
+  country: string[]
+  postal_code: string[]
+  is_active: string[]
+}>()
 
 async function submit() {
-  await useApiFetch("/sanctum/csrf-cookie");
+  await useApiFetch('/sanctum/csrf-cookie')
 
-  const result = await useApiFetch("/api/v1/addresses/" + props.address?.id, {
-    method: "PUT",
+  const result = await useApiFetch('/api/v1/addresses/' + props.address?.id, {
+    method: 'PUT',
     body: form.value,
     headers: {
-      Accept: "application/json",
+      Accept: 'application/json',
     },
-  });
+  })
 
   if (result?.error.value) {
-    errorMsg.value = result.error.value?.data.errors;
-    return;
+    errorMsg.value = result.error.value?.data.errors
+    return
   }
 
-  emits("refresh");
-  emits("close");
+  emits('refresh')
+  emits('close')
 }
 </script>
 
@@ -47,12 +47,7 @@ async function submit() {
     <div class="custom-modal">
       <div class="custom-modal__header">
         <div>Edit Address</div>
-        <button
-          type="button"
-          class="btn-close"
-          aria-label="Close"
-          @click="$emit('close')"
-        ></button>
+        <button type="button" class="btn-close" aria-label="Close" @click="$emit('close')"></button>
       </div>
 
       <div class="custom-modal__body">
@@ -194,9 +189,7 @@ async function submit() {
               v-model="form.is_active"
               aria-describedby="isActiveHelp"
             />
-            <label class="form-check-label" for="is_active"
-              >Set as active</label
-            >
+            <label class="form-check-label" for="is_active">Set as active</label>
             <div
               id="isActiveHelp"
               class="form-text text-xs text-danger"
@@ -210,20 +203,8 @@ async function submit() {
       </div>
 
       <div class="custom-modal__footer">
-        <button
-          type="button"
-          class="btn btn-light btn-sm"
-          @click="$emit('close')"
-        >
-          Cancel
-        </button>
-        <button
-          type="submit"
-          form="update-addrress-form"
-          class="btn btn-primary btn-sm"
-        >
-          Submit
-        </button>
+        <button type="button" class="btn btn-light btn-sm" @click="$emit('close')">Cancel</button>
+        <button type="submit" form="update-addrress-form" class="btn btn-primary btn-sm">Submit</button>
       </div>
     </div>
   </div>

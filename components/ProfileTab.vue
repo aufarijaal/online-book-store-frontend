@@ -1,114 +1,114 @@
 <script lang="ts" setup>
-const initialEmail = ref("");
-const initialName = ref("");
+const initialEmail = ref('')
+const initialName = ref('')
 
-const email = ref("");
-const name = ref("");
-const errorMsg = ref("");
-const oldPassword = ref("");
-const newPassword = ref("");
-const passwordConfirmation = ref("");
+const email = ref('')
+const name = ref('')
+const errorMsg = ref('')
+const oldPassword = ref('')
+const newPassword = ref('')
+const passwordConfirmation = ref('')
 
 const isNameDirty = computed(() => {
-  return name.value !== initialName.value;
-});
+  return name.value !== initialName.value
+})
 
 const isEmailDirty = computed(() => {
-  return email.value !== initialEmail.value;
-});
+  return email.value !== initialEmail.value
+})
 
 async function getProfileInfo() {
-  await useApiFetch("/sanctum/csrf-cookie");
+  await useApiFetch('/sanctum/csrf-cookie')
 
-  const result = await useApiFetch("/api/v1/account/profile", {
+  const result = await useApiFetch('/api/v1/account/profile', {
     headers: {
-      Accept: "application/json",
+      Accept: 'application/json',
     },
-  });
+  })
 
   if (result?.error.value) {
-    errorMsg.value = result?.error.value.message;
-    return;
+    errorMsg.value = result?.error.value.message
+    return
   }
 
-  initialName.value = (result.data.value as any).data.name;
-  initialEmail.value = (result.data.value as any).data.email;
+  initialName.value = (result.data.value as any).data.name
+  initialEmail.value = (result.data.value as any).data.email
 
-  name.value = (result.data.value as any).data.name;
-  email.value = (result.data.value as any).data.email;
+  name.value = (result.data.value as any).data.name
+  email.value = (result.data.value as any).data.email
 }
 
 async function resetPassword() {
-  await useApiFetch("/sanctum/csrf-cookie");
+  await useApiFetch('/sanctum/csrf-cookie')
 
   const result = await useApiFetch(`/api/v1/account/update-password`, {
     headers: {
-      Accept: "application/json",
+      Accept: 'application/json',
     },
-    method: "PATCH",
+    method: 'PATCH',
     body: {
       old_password: oldPassword.value,
       password: newPassword.value,
       password_confirmation: passwordConfirmation.value,
     },
-  });
+  })
 
   if (result?.error.value) {
-    errorMsg.value = result?.error.value.message;
-    return;
+    errorMsg.value = result?.error.value.message
+    return
   }
 
-  await getProfileInfo();
-  oldPassword.value = "";
-  newPassword.value = "";
-  passwordConfirmation.value = "";
+  await getProfileInfo()
+  oldPassword.value = ''
+  newPassword.value = ''
+  passwordConfirmation.value = ''
 }
 
 async function updateEmail() {
-  await useApiFetch("/sanctum/csrf-cookie");
+  await useApiFetch('/sanctum/csrf-cookie')
 
   const result = await useApiFetch(`/api/v1/account/update-email`, {
     headers: {
-      Accept: "application/json",
+      Accept: 'application/json',
     },
-    method: "PATCH",
+    method: 'PATCH',
     body: {
       email: email.value,
     },
-  });
+  })
 
   if (result?.error.value) {
-    errorMsg.value = result?.error.value.message;
-    return;
+    errorMsg.value = result?.error.value.message
+    return
   }
 
-  await getProfileInfo();
+  await getProfileInfo()
 }
 
 async function updateName() {
-  await useApiFetch("/sanctum/csrf-cookie");
+  await useApiFetch('/sanctum/csrf-cookie')
 
   const result = await useApiFetch(`/api/v1/account/update-name`, {
     headers: {
-      Accept: "application/json",
+      Accept: 'application/json',
     },
-    method: "PATCH",
+    method: 'PATCH',
     body: {
       name: name.value,
     },
-  });
+  })
 
   if (result?.error.value) {
-    errorMsg.value = result?.error.value.message;
-    return;
+    errorMsg.value = result?.error.value.message
+    return
   }
 
-  await getProfileInfo();
+  await getProfileInfo()
 }
 
 onMounted(async () => {
-  await getProfileInfo();
-});
+  await getProfileInfo()
+})
 </script>
 
 <template>
@@ -120,11 +120,7 @@ onMounted(async () => {
     </div>
 
     <section v-if="name" class="name-section w-100 border-bottom mb-4 pb-4">
-      <form
-        id="form-update-name"
-        style="max-width: 400px"
-        @submit.prevent="updateName"
-      >
+      <form id="form-update-name" style="max-width: 400px" @submit.prevent="updateName">
         <div class="mb-3">
           <label for="formGroupExampleInput" class="form-label">Name</label>
           <input
@@ -136,22 +132,14 @@ onMounted(async () => {
             v-model="name"
           />
         </div>
-        <button
-          type="submit"
-          :class="['btn btn-primary', isNameDirty ? '' : 'disabled']"
-          :disabled="!isNameDirty"
-        >
+        <button type="submit" :class="['btn btn-primary', isNameDirty ? '' : 'disabled']" :disabled="!isNameDirty">
           Update Name
         </button>
       </form>
     </section>
 
     <section v-if="email" class="email-section w-100 border-bottom mb-4 pb-4">
-      <form
-        id="form-update-email"
-        style="max-width: 400px"
-        @submit.prevent="updateEmail"
-      >
+      <form id="form-update-email" style="max-width: 400px" @submit.prevent="updateEmail">
         <div class="mb-3">
           <label for="email" class="form-label">Email</label>
           <input
@@ -175,11 +163,7 @@ onMounted(async () => {
     </section>
 
     <section class="password-section w-100">
-      <form
-        id="form-update-password"
-        style="max-width: 400px"
-        @submit.prevent="resetPassword"
-      >
+      <form id="form-update-password" style="max-width: 400px" @submit.prevent="resetPassword">
         <div class="mb-3">
           <label for="old_password" class="form-label">Old Password</label>
           <input
@@ -203,9 +187,7 @@ onMounted(async () => {
           />
         </div>
         <div class="mb-3">
-          <label for="password_confirmation" class="form-label"
-            >Confirm New Password</label
-          >
+          <label for="password_confirmation" class="form-label">Confirm New Password</label>
           <input
             required
             type="password"
@@ -227,12 +209,7 @@ onMounted(async () => {
         >
           Update Password
         </button>
-        <span
-          role="button"
-          class="text-info text-sm text-decoration-underline ms-4"
-        >
-          I forgot my password
-        </span>
+        <span role="button" class="text-info text-sm text-decoration-underline ms-4"> I forgot my password </span>
       </form>
     </section>
   </div>

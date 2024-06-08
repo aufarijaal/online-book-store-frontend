@@ -1,19 +1,19 @@
 <script lang="ts" setup>
-const auth = useAuthStore();
+const auth = useAuthStore()
 
 definePageMeta({
-  name: "AccountPage",
-  middleware: ["authenticated", "regular-user"],
-});
+  name: 'AccountPage',
+  middleware: ['authenticated', 'regular-user'],
+})
 
 useHead({
-  title: "My Account · Garadia",
-});
+  title: 'My Account · Garadia',
+})
 
-const route = useRoute();
+const route = useRoute()
 const tab = computed(() => {
-  return route.query.tab ?? "profile";
-});
+  return route.query.tab ?? 'profile'
+})
 </script>
 
 <template>
@@ -30,9 +30,7 @@ const tab = computed(() => {
             >
           </li>
           <li class="nav-item">
-            <NuxtLink
-              to="/account?tab=address"
-              :class="['nav-link', tab === 'address' ? 'active' : '']"
+            <NuxtLink to="/account?tab=address" :class="['nav-link', tab === 'address' ? 'active' : '']"
               >Addresses</NuxtLink
             >
           </li>

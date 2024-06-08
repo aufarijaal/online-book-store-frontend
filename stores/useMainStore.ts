@@ -1,40 +1,38 @@
-import { defineStore } from "pinia";
-import { useLocalStorage } from "@vueuse/core";
+import { defineStore } from 'pinia'
+import { useLocalStorage } from '@vueuse/core'
 
-export const useMainStore = defineStore("main", () => {
-  const idstoCheckout = ref(useLocalStorage<number[]>("ids", []));
-  const cartItemsCount = ref(0);
+export const useMainStore = defineStore('main', () => {
+  const idstoCheckout = ref(useLocalStorage<number[]>('ids', []))
+  const cartItemsCount = ref(0)
 
   async function getCartItemsCount() {
-    await useApiFetch("/sanctum/csrf-cookie");
+    await useApiFetch('/sanctum/csrf-cookie')
 
     const result = await useApiFetch(`/api/v1/carts/count`, {
       headers: {
-        Accept: "application/json",
+        Accept: 'application/json',
       },
-    });
+    })
 
     if (result?.error.value) {
-      alert(result.error.value?.data.message);
-      return;
+      alert(result.error.value?.data.message)
+      return
     }
 
-    cartItemsCount.value = (
-      result.data.value as { message: string; data: any }
-    ).data.count;
+    cartItemsCount.value = (result.data.value as { message: string; data: any }).data.count
 
-    shake();
+    shake()
   }
 
   function shake() {
-    const shakeButton = document.getElementById("cart-button");
+    const shakeButton = document.getElementById('cart-button')
 
-    shakeButton?.classList.add("jello-horizontal");
+    shakeButton?.classList.add('jello-horizontal')
 
     setTimeout(() => {
-      shakeButton?.classList.remove("jello-horizontal");
-    }, 1000);
+      shakeButton?.classList.remove('jello-horizontal')
+    }, 1000)
   }
 
-  return { idstoCheckout, cartItemsCount, getCartItemsCount, shake };
-});
+  return { idstoCheckout, cartItemsCount, getCartItemsCount, shake }
+})

@@ -1,69 +1,69 @@
 <script lang="ts" setup>
-const emits = defineEmits(["refresh", "close"]);
+const emits = defineEmits(['refresh', 'close'])
 const form = ref({
   user_id: 0,
-  name: "",
-  full_address: "",
-  city: "",
-  state: "",
-  country: "",
-  postal_code: "",
+  name: '',
+  full_address: '',
+  city: '',
+  state: '',
+  country: '',
+  postal_code: '',
   is_active: false,
-});
+})
 
 const errorMsg = ref<{
-  user_id: string[];
-  name: string[];
-  full_address: string[];
-  city: string[];
-  state: string[];
-  country: string[];
-  postal_code: string[];
-  is_active: string[];
-}>();
+  user_id: string[]
+  name: string[]
+  full_address: string[]
+  city: string[]
+  state: string[]
+  country: string[]
+  postal_code: string[]
+  is_active: string[]
+}>()
 
-const customers = ref<Pick<User, "id" | "name">[]>();
+const customers = ref<Pick<User, 'id' | 'name'>[]>()
 
 async function getCustomers() {
-  await useApiFetch("/sanctum/csrf-cookie");
+  await useApiFetch('/sanctum/csrf-cookie')
 
-  const result = await useApiFetch("/api/v1/admin/customers?forDropdown=true", {
+  const result = await useApiFetch('/api/v1/admin/customers?forDropdown=true', {
     headers: {
-      Accept: "application/json",
+      Accept: 'application/json',
     },
-  });
+  })
 
   if (result?.error.value) {
-    alert(result.error.value?.message);
-    return;
+    alert(result.error.value?.message)
+    return
   }
 
-  customers.value = (result.data.value as any).data as Author[];
+  customers.value = (result.data.value as any).data as Author[]
 }
 
 async function submit() {
-  await useApiFetch("/sanctum/csrf-cookie");
+  await useApiFetch('/sanctum/csrf-cookie')
 
-  const result = await useApiFetch("/api/v1/admin/addresses", {
-    method: "POST",
+  const result = await useApiFetch('/api/v1/admin/addresses', {
+    method: 'POST',
     body: form.value,
     headers: {
-      Accept: "application/json",
+      Accept: 'application/json',
     },
-  });
+  })
 
   if (result?.error.value) {
-    alert(result.error.value.message);
-    errorMsg.value = result.error.value?.data.errors;
-    return;
+    alert(result.error.value.message)
+    errorMsg.value = result.error.value?.data.errors
+    return
   }
-  emits("refresh");
-  emits("close");
+  emits('refresh')
+  emits('close')
 }
 
 onMounted(async () => {
-  await getCustomers();
-});
+  await getCustomers()
+})
 </script>
 
 <template>
@@ -71,12 +71,7 @@ onMounted(async () => {
     <div class="custom-modal">
       <div class="custom-modal__header">
         <div>Add new address</div>
-        <button
-          type="button"
-          class="btn-close"
-          aria-label="Close"
-          @click="$emit('close')"
-        ></button>
+        <button type="button" class="btn-close" aria-label="Close" @click="$emit('close')"></button>
       </div>
 
       <div class="custom-modal__body">
@@ -108,19 +103,11 @@ onMounted(async () => {
           <div class="input-group mb-3">
             <span class="input-group-text fw-bold">Customer</span>
             <select class="form-select" v-model="form.user_id" required>
-              <option
-                v-for="(customer, i) in customers"
-                :value="customer.id"
-                :selected="i === 0"
-              >
+              <option v-for="(customer, i) in customers" :value="customer.id" :selected="i === 0">
                 {{ customer.id }} ⠂ {{ customer.name }}
               </option>
             </select>
-            <div
-              class="form-text text-xs text-danger"
-              v-if="errorMsg?.user_id"
-              v-for="message in errorMsg.user_id"
-            >
+            <div class="form-text text-xs text-danger" v-if="errorMsg?.user_id" v-for="message in errorMsg.user_id">
               {{ message }}
             </div>
           </div>
@@ -257,9 +244,7 @@ onMounted(async () => {
                 v-model="form.is_active"
                 aria-describedby="isActiveHelp"
               />
-              <label class="form-check-label ms-3" for="is_active"
-                >Set as active</label
-              >
+              <label class="form-check-label ms-3" for="is_active">Set as active</label>
               <div
                 id="isActiveHelp"
                 class="form-text text-xs text-danger"
@@ -275,20 +260,8 @@ onMounted(async () => {
 
       <!-- Footer -->
       <div class="custom-modal__footer">
-        <button
-          type="button"
-          class="btn btn-light btn-sm"
-          @click="$emit('close')"
-        >
-          Cancel
-        </button>
-        <button
-          type="submit"
-          form="add-address-form"
-          class="btn btn-primary btn-sm"
-        >
-          Submit
-        </button>
+        <button type="button" class="btn btn-light btn-sm" @click="$emit('close')">Cancel</button>
+        <button type="submit" form="add-address-form" class="btn btn-primary btn-sm">Submit</button>
       </div>
     </div>
   </div>

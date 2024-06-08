@@ -1,0 +1,10 @@
+public
+node_modules
+assets
+.npmrc
+package.json
+package-lock.json
+README.md
+tsconfig.json
+.vscode
+.nuxt

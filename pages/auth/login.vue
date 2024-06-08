@@ -1,34 +1,34 @@
 <script lang="ts" setup>
-const auth = useAuthStore();
+const auth = useAuthStore()
 
 definePageMeta({
-  name: "SigninPage",
+  name: 'SigninPage',
   layout: false,
-  middleware: ["guest"],
-});
+  middleware: ['guest'],
+})
 
-const route = useRoute();
-const showPassword = ref(false);
-const showUnauthAlert = ref(route.query["unauth-alert"]);
+const route = useRoute()
+const showPassword = ref(false)
+const showUnauthAlert = ref(route.query['unauth-alert'])
 const errorMsg = ref<{
-  name: string[];
-  email: string[];
-  password: string[];
-}>();
+  name: string[]
+  email: string[]
+  password: string[]
+}>()
 const form = ref({
-  email: "",
-  password: "",
-});
+  email: '',
+  password: '',
+})
 
 function toggleShowPassword() {
-  showPassword.value = !showPassword.value;
+  showPassword.value = !showPassword.value
 }
 async function submit() {
-  const result = await auth.login(form.value);
+  const result = await auth.login(form.value)
 
   if (result?.error.value) {
-    errorMsg.value = result.error.value?.data.errors;
-    return;
+    errorMsg.value = result.error.value?.data.errors
+    return
   }
 }
 
@@ -36,33 +36,21 @@ watch(
   () => auth.isLoggedIn,
   () => {
     if (auth.isLoggedIn) {
-      navigateTo(auth.user?.is_admin === "1" ? "/admin" : "/");
+      navigateTo(auth.user?.is_admin === '1' ? '/admin' : '/')
     }
-  }
-);
+  },
+)
 </script>
 
 <template>
-  <main
-    id="signin-page"
-    class="w-100 min-vh-100 bg-light d-grid place-items-center"
-  >
-    <div
-      class="container bg-white p-5 rounded shadow-lg"
-      style="max-width: 500px"
-    >
+  <main id="signin-page" class="w-100 min-vh-100 bg-light d-grid place-items-center">
+    <div class="container bg-white p-5 rounded shadow-lg" style="max-width: 500px">
       <!-- Alert -->
-      <div
-        class="alert alert-warning text-sm p-2 text-center"
-        role="alert"
-        v-if="showUnauthAlert"
-      >
+      <div class="alert alert-warning text-sm p-2 text-center" role="alert" v-if="showUnauthAlert">
         You need to sign in first
       </div>
 
-      <div
-        class="mb-4 d-flex justify-content-center flex-column align-items-center"
-      >
+      <div class="mb-4 d-flex justify-content-center flex-column align-items-center">
         <NuxtLink to="/">
           <img width="86" height="86" src="/logo.svg" alt="nuxt logo" />
         </NuxtLink>
@@ -105,11 +93,7 @@ watch(
               required
               v-model="form.password"
             />
-            <button
-              class="btn btn-success btn-sm px-2 py-2"
-              type="button"
-              @click="toggleShowPassword"
-            >
+            <button class="btn btn-success btn-sm px-2 py-2" type="button" @click="toggleShowPassword">
               <eye-icon v-show="!showPassword" />
               <eye-icon-slash v-show="showPassword" />
             </button>
@@ -124,12 +108,8 @@ watch(
         </div>
 
         <!-- Submit Button -->
-        <div
-          class="w-100 mt-4 d-flex justify-content-center flex-column align-items-center"
-        >
-          <button type="submit" class="btn btn-success w-100 mb-3">
-            Sign in
-          </button>
+        <div class="w-100 mt-4 d-flex justify-content-center flex-column align-items-center">
+          <button type="submit" class="btn btn-success w-100 mb-3">Sign in</button>
           <!-- <button
             type="button"
             class="btn btn-secondary w-100 mb-3 d-flex align-items-center justify-content-center"

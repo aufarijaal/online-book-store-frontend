@@ -1,37 +1,37 @@
 <script lang="ts" setup>
-import toRupiah from "@develoka/angka-rupiah-js";
+import toRupiah from '@develoka/angka-rupiah-js'
 
 definePageMeta({
-  middleware: ["public-or-not-admin"],
-});
+  middleware: ['public-or-not-admin'],
+})
 
 useHead({
-  title: "Garadia",
-});
+  title: 'Garadia',
+})
 
-const bookResponse = ref<any>();
-const errorMsg = ref("");
+const bookResponse = ref<any>()
+const errorMsg = ref('')
 
 async function getBooks() {
-  await useApiFetch("/sanctum/csrf-cookie");
+  await useApiFetch('/sanctum/csrf-cookie')
 
-  const result = await useApiFetch("/api/v1/books?forHomePage=true", {
+  const result = await useApiFetch('/api/v1/books?forHomePage=true', {
     headers: {
-      Accept: "application/json",
+      Accept: 'application/json',
     },
-  });
+  })
 
   if (result?.error.value) {
-    errorMsg.value = result.error.value?.data.message;
-    return;
+    errorMsg.value = result.error.value?.data.message
+    return
   }
 
-  bookResponse.value = result.data.value as BookResponse;
+  bookResponse.value = result.data.value as BookResponse
 }
 
 onMounted(async () => {
-  await getBooks();
-});
+  await getBooks()
+})
 </script>
 
 <template>
@@ -40,11 +40,7 @@ onMounted(async () => {
       <section class="py-5 text-center container">
         <!-- Alert -->
         <div class="alert alert-dismissible alert-danger" v-show="errorMsg">
-          <button
-            type="button"
-            class="btn-close"
-            data-bs-dismiss="alert"
-          ></button>
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
           <span>{{ errorMsg }}</span>
         </div>
 
@@ -52,8 +48,7 @@ onMounted(async () => {
           <div class="col-lg-6 col-md-8 mx-auto">
             <h1 class="fw-bold">Garadia</h1>
             <p class="lead text-muted">
-              Enter a World of Books and Explore Our Online Bookstore for
-              Endless Reading Pleasure
+              Enter a World of Books and Explore Our Online Bookstore for Endless Reading Pleasure
             </p>
           </div>
         </div>
@@ -80,12 +75,8 @@ onMounted(async () => {
                   }"
                 />
 
-                <div
-                  class="card-body text-center d-flex flex-column justify-content-center gap-2"
-                >
-                  <div class="text-muted line-clamp-1">
-                    by {{ book.author ? book.author.name : "Unknown" }}
-                  </div>
+                <div class="card-body text-center d-flex flex-column justify-content-center gap-2">
+                  <div class="text-muted line-clamp-1">by {{ book.author ? book.author.name : 'Unknown' }}</div>
                   <div class="fw-bold line-clamp-1">{{ book.title }}</div>
                   <div class="fw-bold text-success">
                     {{ toRupiah(book.price, { floatingPoint: 0 }) }}

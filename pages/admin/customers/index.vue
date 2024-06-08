@@ -1,153 +1,134 @@
 <script lang="ts" setup>
 interface CustomerResponse {
-  message: string;
-  data: DataResponse<Customer>;
+  message: string
+  data: DataResponse<Customer>
 }
 
-const auth = useAuthStore();
+const auth = useAuthStore()
 
 definePageMeta({
-  layout: "admin",
-  middleware: ["authenticated", "admin"],
-});
+  layout: 'admin',
+  middleware: ['authenticated', 'admin'],
+})
 
 useHead({
-  title: "Admin · Customers",
-});
+  title: 'Admin · Customers',
+})
 
-const route = useRoute();
-const router = useRouter();
-const customerResponse = ref<CustomerResponse>();
-const sizePerPage = ref(20);
-const currentPage = ref(0);
-const selectedIds = ref<number[]>([]);
-const showAddCustomerModal = ref(false);
-const showEditCustomerModal = ref(false);
-const showEditCustomerPasswordModal = ref(false);
-const searchInput = ref("");
-const customerToEdit = ref<
-  Omit<
-    Customer,
-    "created_at" | "updated_at" | "deleted_at" | "password" | "remember_token"
-  >
->({
+const route = useRoute()
+const router = useRouter()
+const customerResponse = ref<CustomerResponse>()
+const sizePerPage = ref(20)
+const currentPage = ref(0)
+const selectedIds = ref<number[]>([])
+const showAddCustomerModal = ref(false)
+const showEditCustomerModal = ref(false)
+const showEditCustomerPasswordModal = ref(false)
+const searchInput = ref('')
+const customerToEdit = ref<Omit<Customer, 'created_at' | 'updated_at' | 'deleted_at' | 'password' | 'remember_token'>>({
   id: 0,
-  name: "",
-  email: "",
-  email_verified_at: "",
-});
+  name: '',
+  email: '',
+  email_verified_at: '',
+})
 
 async function getCustomers() {
-  await useApiFetch("/sanctum/csrf-cookie");
+  await useApiFetch('/sanctum/csrf-cookie')
 
   const params = new URLSearchParams({
     page: currentPage.value.toString(),
     sizePerPage: sizePerPage.value.toString(),
     q: searchInput.value,
-  });
+  })
 
-  const result = await useApiFetch("/api/v1/admin/customers?" + params, {
+  const result = await useApiFetch('/api/v1/admin/customers?' + params, {
     headers: {
-      Accept: "application/json",
+      Accept: 'application/json',
     },
-  });
+  })
 
   if (result?.error.value) {
-    alert(result.error.value?.data.errors);
-    return;
+    alert(result.error.value?.data.errors)
+    return
   }
-  customerResponse.value = result.data.value as CustomerResponse;
+  customerResponse.value = result.data.value as CustomerResponse
 }
 
 async function editCustomer() {
-  await useApiFetch("/sanctum/csrf-cookie");
+  await useApiFetch('/sanctum/csrf-cookie')
 
-  const result = await useApiFetch(
-    `/api/v1/admin/customers/${selectedIds.value[0]}/edit`,
-    {
-      headers: {
-        Accept: "application/json",
-      },
-    }
-  );
+  const result = await useApiFetch(`/api/v1/admin/customers/${selectedIds.value[0]}/edit`, {
+    headers: {
+      Accept: 'application/json',
+    },
+  })
 
   if (result?.error.value) {
-    alert(result.error.value?.data.errors);
-    return;
+    alert(result.error.value?.data.errors)
+    return
   }
 
-  customerToEdit.value.id = selectedIds.value[0];
-  customerToEdit.value.name = (result.data.value as any).data.name;
-  customerToEdit.value.email = (result.data.value as any).data.email;
-  customerToEdit.value.email_verified_at = (
-    result.data.value as any
-  ).data.email_verified_at;
+  customerToEdit.value.id = selectedIds.value[0]
+  customerToEdit.value.name = (result.data.value as any).data.name
+  customerToEdit.value.email = (result.data.value as any).data.email
+  customerToEdit.value.email_verified_at = (result.data.value as any).data.email_verified_at
 
-  showEditCustomerModal.value = true;
+  showEditCustomerModal.value = true
 }
 
 async function deleteCustomers() {
-  let message = "";
+  let message = ''
   if (selectedIds.value.length === 1) {
-    message = `Are you sure you want to delete a customer with id ${selectedIds.value[0]}?`;
+    message = `Are you sure you want to delete a customer with id ${selectedIds.value[0]}?`
   } else if (selectedIds.value.length === 2) {
-    message = `Are you sure want to delete a customers with id ${selectedIds.value[0]} and ${selectedIds.value[1]}?`;
+    message = `Are you sure want to delete a customers with id ${selectedIds.value[0]} and ${selectedIds.value[1]}?`
   } else {
-    const lastId = selectedIds.value[selectedIds.value.length - 1];
-    const idsString = selectedIds.value
-      .slice(0, selectedIds.value.length - 1)
-      .join(", ");
-    message = `Are you sure you want to delete customers with id ${idsString}, and ${lastId}?`;
+    const lastId = selectedIds.value[selectedIds.value.length - 1]
+    const idsString = selectedIds.value.slice(0, selectedIds.value.length - 1).join(', ')
+    message = `Are you sure you want to delete customers with id ${idsString}, and ${lastId}?`
   }
 
   if (confirm(message)) {
-    await useApiFetch("/sanctum/csrf-cookie");
+    await useApiFetch('/sanctum/csrf-cookie')
 
-    const result = await useApiFetch(
-      "/api/v1/admin/customers?ids=" + selectedIds.value.join(","),
-      {
-        method: "DELETE",
-        headers: {
-          Accept: "application/json",
-        },
-      }
-    );
+    const result = await useApiFetch('/api/v1/admin/customers?ids=' + selectedIds.value.join(','), {
+      method: 'DELETE',
+      headers: {
+        Accept: 'application/json',
+      },
+    })
 
     if (result?.error.value) {
-      alert(result.error.value?.data.errors);
-      return;
+      alert(result.error.value?.data.errors)
+      return
     }
 
-    selectedIds.value = [];
-    await getCustomers();
+    selectedIds.value = []
+    await getCustomers()
   } else {
-    selectedIds.value = [];
+    selectedIds.value = []
   }
 }
 
 watch([sizePerPage, currentPage], async () => {
-  await getCustomers();
-});
+  await getCustomers()
+})
 
 onMounted(async () => {
   if (route.query.redirectToPage) {
-    currentPage.value = parseInt(route.query.redirectToPage.toString());
+    currentPage.value = parseInt(route.query.redirectToPage.toString())
   } else {
-    currentPage.value = 1;
+    currentPage.value = 1
   }
 
-  await getCustomers();
-});
+  await getCustomers()
+})
 </script>
 
 <template>
   <div class="p-4 pt-0">
     <Teleport to="body">
-      <ModalsAddCustomer
-        v-if="showAddCustomerModal"
-        @close="showAddCustomerModal = false"
-        @refresh="getCustomers"
-      />
+      <ModalsAddCustomer v-if="showAddCustomerModal" @close="showAddCustomerModal = false" @refresh="getCustomers" />
       <ModalsEditCustomer
         v-if="showEditCustomerModal"
         :customer="customerToEdit"
@@ -175,12 +156,7 @@ onMounted(async () => {
             v-model="searchInput"
             @keyup.enter="getCustomers"
           />
-          <button
-            class="btn btn-primary"
-            type="button"
-            id="button-search"
-            @click="getCustomers"
-          >
+          <button class="btn btn-primary" type="button" id="button-search" @click="getCustomers">
             <SearchIcon width="20" height="20" />
           </button>
         </div>
@@ -202,8 +178,8 @@ onMounted(async () => {
                 class="dropdown-item"
                 @click="
                   () => {
-                    currentPage = 1;
-                    sizePerPage = 20;
+                    currentPage = 1
+                    sizePerPage = 20
                   }
                 "
               >
@@ -215,8 +191,8 @@ onMounted(async () => {
                 class="dropdown-item"
                 @click="
                   () => {
-                    currentPage = 1;
-                    sizePerPage = 50;
+                    currentPage = 1
+                    sizePerPage = 50
                   }
                 "
               >
@@ -228,8 +204,8 @@ onMounted(async () => {
                 class="dropdown-item"
                 @click="
                   () => {
-                    currentPage = 1;
-                    sizePerPage = 100;
+                    currentPage = 1
+                    sizePerPage = 100
                   }
                 "
               >
@@ -242,22 +218,13 @@ onMounted(async () => {
 
       <!-- Data Table -->
       <div class="card">
-        <h5
-          class="card-header d-flex align-items-center justify-content-between"
-        >
+        <h5 class="card-header d-flex align-items-center justify-content-between">
           <div class="fs-5">Customers</div>
           <div class="d-flex align-items-center gap-2">
-            <button
-              class="btn btn-primary btn-sm"
-              @click="showAddCustomerModal = true"
-            >
+            <button class="btn btn-primary btn-sm" @click="showAddCustomerModal = true">
               <PlusIcon />
             </button>
-            <button
-              class="btn btn-success btn-sm"
-              :disabled="!selectedIds.length"
-              @click="editCustomer"
-            >
+            <button class="btn btn-success btn-sm" :disabled="!selectedIds.length" @click="editCustomer">
               <PencilIcon />
             </button>
             <button
@@ -266,17 +233,13 @@ onMounted(async () => {
               :disabled="!selectedIds.length"
               @click="
                 () => {
-                  showEditCustomerPasswordModal = true;
+                  showEditCustomerPasswordModal = true
                 }
               "
             >
               <PasswordIcon />
             </button>
-            <button
-              class="btn btn-danger btn-sm"
-              :disabled="!selectedIds.length"
-              @click="deleteCustomers"
-            >
+            <button class="btn btn-danger btn-sm" :disabled="!selectedIds.length" @click="deleteCustomers">
               <TrashIcon />
               ({{ selectedIds.length }})
             </button>
@@ -290,10 +253,7 @@ onMounted(async () => {
             </button>
           </div>
         </h5>
-        <div
-          class="table-responsive text-nowrap"
-          style="max-height: calc(100vh - 300px)"
-        >
+        <div class="table-responsive text-nowrap" style="max-height: calc(100vh - 300px)">
           <table class="table table-striped" v-if="customerResponse">
             <thead>
               <tr>
@@ -302,14 +262,14 @@ onMounted(async () => {
                     <input
                       class="form-check-input"
                       type="checkbox"
-                      @change="(e) => {
-                        if((e.target as HTMLInputElement).checked && customerResponse) {
-                          selectedIds = customerResponse?.data.data.map(item => item.id);
-                        } else selectedIds = [];
-                      }"
-                      :checked="
-                        selectedIds.length === customerResponse.data.data.length
+                      @change="
+                        (e) => {
+                          if ((e.target as HTMLInputElement).checked && customerResponse) {
+                            selectedIds = customerResponse?.data.data.map((item) => item.id)
+                          } else selectedIds = []
+                        }
                       "
+                      :checked="selectedIds.length === customerResponse.data.data.length"
                       style="transform: scale(1.4)"
                     />
                   </div>
@@ -328,11 +288,13 @@ onMounted(async () => {
                     <input
                       class="form-check-input"
                       type="checkbox"
-                      @change="(e) => {
-                        if((e.target as HTMLInputElement).checked) {
-                          selectedIds.push(customer.id);
-                        } else selectedIds = selectedIds.filter(item => item !== customer.id);
-                      }"
+                      @change="
+                        (e) => {
+                          if ((e.target as HTMLInputElement).checked) {
+                            selectedIds.push(customer.id)
+                          } else selectedIds = selectedIds.filter((item) => item !== customer.id)
+                        }
+                      "
                       :checked="selectedIds.includes(customer.id)"
                       :id="`mark-${customer.id}`"
                       style="transform: scale(1.4)"
@@ -369,12 +331,10 @@ onMounted(async () => {
       <div class="d-flex justify-content-between mt-2">
         <div v-if="customerResponse">
           Showing
-          {{
-            customerResponse?.data.per_page! *
-            customerResponse?.data.current_page!
-
-
-          }}/{{ customerResponse?.data.total }} entries
+          {{ customerResponse?.data.per_page! * customerResponse?.data.current_page! }}/{{
+            customerResponse?.data.total
+          }}
+          entries
         </div>
         <div v-else>Loading...</div>
 
@@ -383,26 +343,18 @@ onMounted(async () => {
           <ul class="pagination pagination-sm">
             <li class="page-item" v-for="page in customerResponse?.data.links">
               <div
-                :class="[
-                  'page-link',
-                  page.active ? 'active' : '',
-                  page.url ? '' : 'disabled',
-                ]"
+                :class="['page-link', page.active ? 'active' : '', page.url ? '' : 'disabled']"
                 style="cursor: pointer"
                 @click="
                   currentPage = page.label.includes('Prev')
                     ? customerResponse?.data.current_page! - 1
                     : page.label.includes('Next')
-                    ? customerResponse?.data.current_page! + 1
-                    : parseInt(page.label)
+                      ? customerResponse?.data.current_page! + 1
+                      : parseInt(page.label)
                 "
                 :title="`page ${page.label.includes('Prev') ? customerResponse?.data.current_page! - 1 : page.label.includes('Next') ? customerResponse?.data.current_page! + 1 : parseInt(page.label)}`"
               >
-                {{
-                  page.label
-                    .replaceAll("&amp;laquo;", "")
-                    .replaceAll("&amp;raquo;", "")
-                }}
+                {{ page.label.replaceAll('&amp;laquo;', '').replaceAll('&amp;raquo;', '') }}
               </div>
             </li>
           </ul>
