@@ -64,97 +64,51 @@ watch(
         <!-- Input Name -->
         <div class="form-group">
           <label for="name">Your Name</label>
-          <input
-            type="name"
-            class="form-control"
-            id="name"
-            name="name"
-            aria-describedby="name_help"
-            required
-            v-model="form.name"
-          />
-          <small
-            id="name_help"
-            class="form-text text-danger text-xs d-block"
-            v-if="errorMsg?.name"
-            v-for="message in errorMsg?.name"
-            >{{ message }}</small
-          >
+          <input type="name" class="form-control" id="name" name="name" aria-describedby="name_help" required
+            v-model="form.name" />
+          <small id="name_help" class="form-text text-danger text-xs d-block" v-if="errorMsg?.name"
+            v-for="message in errorMsg?.name">{{ message }}</small>
         </div>
 
         <!-- Input Email -->
         <div class="form-group">
           <label for="email">Email address</label>
-          <input
-            type="email"
-            class="form-control"
-            id="email"
-            name="email"
-            aria-describedby="email_help"
-            required
-            v-model="form.email"
-          />
-          <small
-            id="email_help"
-            class="form-text text-danger text-xs d-block"
-            v-if="errorMsg?.email"
-            v-for="message in errorMsg?.email"
-            >{{ message }}</small
-          >
+          <input type="email" class="form-control" id="email" name="email" aria-describedby="email_help" required
+            v-model="form.email" />
+          <small id="email_help" class="form-text text-danger text-xs d-block" v-if="errorMsg?.email"
+            v-for="message in errorMsg?.email">{{ message }}</small>
         </div>
 
         <!-- Input Password -->
         <div class="form-group">
           <label for="password">Password</label>
           <div class="d-flex align-items-center">
-            <input
-              :type="showPassword ? 'text' : 'password'"
-              class="form-control me-2"
-              id="password"
-              name="password"
-              aria-describedby="password_help"
-              required
-              v-model="form.password"
-            />
+            <input :type="showPassword ? 'text' : 'password'" class="form-control me-2" id="password" name="password"
+              aria-describedby="password_help" required v-model="form.password" />
             <button class="btn btn-success btn-sm px-2 py-2" type="button" @click="toggleShowPassword">
-              <eye-icon v-show="!showPassword" />
-              <eye-icon-slash v-show="showPassword" />
+              <Icon name="mdi:eye" v-show="!showPassword" />
+              <Icon name="mdi:eye-off" v-show="showPassword" />
             </button>
           </div>
-          <small
-            id="password_help"
-            class="form-text text-danger text-xs d-block"
-            v-if="errorMsg?.password"
-            v-for="message in errorMsg?.password"
-            >{{ message }}</small
-          >
+          <small id="password_help" class="form-text text-danger text-xs d-block" v-if="errorMsg?.password"
+            v-for="message in errorMsg?.password">{{ message }}</small>
         </div>
 
         <!-- Input Password Confirmation -->
         <div class="form-group">
           <label for="password_confirmation">Confirm Password</label>
           <div class="d-flex align-items-center">
-            <input
-              :type="showConfirmPassword ? 'text' : 'password'"
-              class="form-control me-2"
-              id="password_confirmation"
-              name="password_confirmation"
-              aria-describedby="password_confirmation_help"
-              required
-              v-model="form.password_confirmation"
-            />
+            <input :type="showConfirmPassword ? 'text' : 'password'" class="form-control me-2"
+              id="password_confirmation" name="password_confirmation" aria-describedby="password_confirmation_help"
+              required v-model="form.password_confirmation" />
             <button class="btn btn-success btn-sm px-2 py-2" type="button" @click="toggleShowConfirmPassword">
-              <eye-icon v-show="!showConfirmPassword" />
-              <eye-icon-slash v-show="showConfirmPassword" />
+              <Icon name="mdi:eye" v-show="!showConfirmPassword" />
+              <Icon name="mdi:eye-off" v-show="showConfirmPassword" />
             </button>
           </div>
-          <small
-            id="password_confirmation_help"
-            class="form-text text-danger text-xs d-block"
-            v-if="errorMsg?.password_confirmation"
-            v-for="message in errorMsg?.password_confirmation"
-            >{{ message }}</small
-          >
+          <small id="password_confirmation_help" class="form-text text-danger text-xs d-block"
+            v-if="errorMsg?.password_confirmation" v-for="message in errorMsg?.password_confirmation">{{ message
+            }}</small>
         </div>
 
         <!-- Submit Button -->

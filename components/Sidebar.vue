@@ -1,5 +1,41 @@
 <script lang="ts" setup>
-onMounted(() => {})
+const menu = [
+  {
+    "title": "Home",
+    "icon": "mdi:home",
+    "href": "/admin"
+  },
+  {
+    "title": "Addresses",
+    "icon": "mdi:map",
+    "href": "/admin/addresses"
+  },
+  {
+    "title": "Authors",
+    "icon": "mdi:account-edit",
+    "href": "/admin/authors"
+  },
+  {
+    "title": "Books",
+    "icon": "mdi:book",
+    "href": "/admin/books"
+  },
+  {
+    "title": "Customers",
+    "icon": "mdi:account-cash",
+    "href": "/admin/customers"
+  },
+  {
+    "title": "Genres",
+    "icon": "iconamoon:category-fill",
+    "href": "/admin/genres"
+  },
+  {
+    "title": "Orders",
+    "icon": "material-symbols:orders",
+    "href": "/admin/orders"
+  },
+]
 </script>
 
 <template>
@@ -10,52 +46,10 @@ onMounted(() => {})
     </a>
     <hr />
     <ul class="nav nav-pills flex-column mb-auto gap-2">
-      <li>
-        <SidebarNavLink active-class="active" to="/admin">
-          <DashboardIcon />
-          Dashboard
-        </SidebarNavLink>
-      </li>
-
-      <li>
-        <SidebarNavLink active-class="active" to="/admin/books">
-          <BookIcon />
-          Books
-        </SidebarNavLink>
-      </li>
-
-      <li>
-        <SidebarNavLink active-class="active" to="/admin/genres">
-          <GenreIcon />
-          Genres
-        </SidebarNavLink>
-      </li>
-
-      <li>
-        <SidebarNavLink active-class="active" to="/admin/orders">
-          <OrderIcon />
-          Orders
-        </SidebarNavLink>
-      </li>
-
-      <li>
-        <SidebarNavLink active-class="active" to="/admin/customers">
-          <CustomerIcon />
-          Customers
-        </SidebarNavLink>
-      </li>
-
-      <li>
-        <SidebarNavLink active-class="active" to="/admin/authors">
-          <AuthorIcon />
-          Authors
-        </SidebarNavLink>
-      </li>
-
-      <li>
-        <SidebarNavLink active-class="active" to="/admin/addresses">
-          <AddressIcon />
-          Addresses
+      <li v-for="(item, i) in menu" :key="i">
+        <SidebarNavLink active-class="active" :to="item.href">
+          <Icon :name="item.icon" size="24" />
+          {{ item.title }}
         </SidebarNavLink>
       </li>
     </ul>

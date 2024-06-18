@@ -29,9 +29,9 @@ const errorMsg = ref<{
 }>()
 
 async function submit() {
-  await useApiFetch('/sanctum/csrf-cookie')
+  await useApiFetch('/csrf-cookie')
 
-  const result = await useApiFetch('/api/v1/admin/addresses/' + props.address.id, {
+  const result = await useApiFetch('/admin/addresses/' + props.address.id, {
     method: 'PUT',
     body: form.value,
     headers: {
@@ -63,21 +63,11 @@ async function submit() {
           <div class="mb-3">
             <div class="input-group">
               <span class="input-group-text fw-bold">Name</span>
-              <input
-                type="text"
-                class="form-control"
-                id="name"
-                aria-describedby="nameHelp"
-                required
-                v-model="form.name"
-              />
+              <input type="text" class="form-control" id="name" aria-describedby="nameHelp" required
+                v-model="form.name" />
             </div>
-            <div
-              id="nameHelp"
-              class="form-text text-xs text-danger"
-              v-if="errorMsg?.name"
-              v-for="message in errorMsg?.name"
-            >
+            <div id="nameHelp" class="form-text text-xs text-danger" v-if="errorMsg?.name"
+              v-for="message in errorMsg?.name">
               {{ message }}
             </div>
           </div>
@@ -85,16 +75,8 @@ async function submit() {
           <!-- Customer Reference -->
           <div class="input-group mb-3">
             <span class="input-group-text fw-bold">Customer ID</span>
-            <input
-              type="text"
-              class="form-control"
-              id="user_id"
-              aria-describedby="customerHelp"
-              required
-              readonly
-              disabled
-              v-model="form.user_id"
-            />
+            <input type="text" class="form-control" id="user_id" aria-describedby="customerHelp" required readonly
+              disabled v-model="form.user_id" />
             <div class="form-text text-xs text-danger" v-if="errorMsg?.user_id" v-for="message in errorMsg.user_id">
               {{ message }}
             </div>
@@ -104,21 +86,11 @@ async function submit() {
           <div class="mb-3">
             <div class="input-group">
               <span class="input-group-text fw-bold">Full Address</span>
-              <input
-                type="text"
-                class="form-control"
-                id="full_adress"
-                aria-describedby="fullAddressHelp"
-                required
-                v-model="form.full_address"
-              />
+              <input type="text" class="form-control" id="full_adress" aria-describedby="fullAddressHelp" required
+                v-model="form.full_address" />
             </div>
-            <div
-              id="fullAddressHelp"
-              class="form-text text-xs text-danger"
-              v-if="errorMsg?.full_address"
-              v-for="message in errorMsg?.full_address"
-            >
+            <div id="fullAddressHelp" class="form-text text-xs text-danger" v-if="errorMsg?.full_address"
+              v-for="message in errorMsg?.full_address">
               {{ message }}
             </div>
           </div>
@@ -127,21 +99,11 @@ async function submit() {
           <div class="mb-3">
             <div class="input-group">
               <span class="input-group-text fw-bold">City</span>
-              <input
-                type="text"
-                class="form-control"
-                id="city"
-                aria-describedby="cityHelp"
-                required
-                v-model="form.city"
-              />
+              <input type="text" class="form-control" id="city" aria-describedby="cityHelp" required
+                v-model="form.city" />
             </div>
-            <div
-              id="cityHelp"
-              class="form-text text-xs text-danger"
-              v-if="errorMsg?.city"
-              v-for="message in errorMsg?.city"
-            >
+            <div id="cityHelp" class="form-text text-xs text-danger" v-if="errorMsg?.city"
+              v-for="message in errorMsg?.city">
               {{ message }}
             </div>
           </div>
@@ -150,21 +112,11 @@ async function submit() {
           <div class="mb-3">
             <div class="input-group">
               <span class="input-group-text fw-bold">State</span>
-              <input
-                type="text"
-                class="form-control"
-                id="state"
-                aria-describedby="stateHelp"
-                required
-                v-model="form.state"
-              />
+              <input type="text" class="form-control" id="state" aria-describedby="stateHelp" required
+                v-model="form.state" />
             </div>
-            <div
-              id="stateHelp"
-              class="form-text text-xs text-danger"
-              v-if="errorMsg?.state"
-              v-for="message in errorMsg?.state"
-            >
+            <div id="stateHelp" class="form-text text-xs text-danger" v-if="errorMsg?.state"
+              v-for="message in errorMsg?.state">
               {{ message }}
             </div>
           </div>
@@ -181,21 +133,11 @@ async function submit() {
                 required
                 v-model="form.country"
               /> -->
-              <CountryCodeSelector
-                required
-                class="form-control"
-                id="country"
-                aria-describedby="countryHelp"
-                v-model="form.country"
-                :default="form.country"
-              />
+              <CountryCodeSelector required class="form-control" id="country" aria-describedby="countryHelp"
+                v-model="form.country" :default="form.country" />
             </div>
-            <div
-              id="countryHelp"
-              class="form-text text-xs text-danger"
-              v-if="errorMsg?.country"
-              v-for="message in errorMsg?.country"
-            >
+            <div id="countryHelp" class="form-text text-xs text-danger" v-if="errorMsg?.country"
+              v-for="message in errorMsg?.country">
               {{ message }}
             </div>
           </div>
@@ -204,21 +146,11 @@ async function submit() {
           <div class="mb-3">
             <div class="input-group">
               <span class="input-group-text fw-bold">Postal Code</span>
-              <input
-                type="text"
-                class="form-control"
-                id="postal_code"
-                aria-describedby="postalCodeHelp"
-                required
-                v-model="form.postal_code"
-              />
+              <input type="text" class="form-control" id="postal_code" aria-describedby="postalCodeHelp" required
+                v-model="form.postal_code" />
             </div>
-            <div
-              id="postalCodeHelp"
-              class="form-text text-xs text-danger"
-              v-if="errorMsg?.postal_code"
-              v-for="message in errorMsg?.postal_code"
-            >
+            <div id="postalCodeHelp" class="form-text text-xs text-danger" v-if="errorMsg?.postal_code"
+              v-for="message in errorMsg?.postal_code">
               {{ message }}
             </div>
           </div>
@@ -226,20 +158,11 @@ async function submit() {
           <!-- Is Active -->
           <div class="mb-3">
             <div class="input-group">
-              <input
-                type="checkbox"
-                class="form-check-input"
-                id="is_active"
-                v-model="form.is_active"
-                aria-describedby="isActiveHelp"
-              />
+              <input type="checkbox" class="form-check-input" id="is_active" v-model="form.is_active"
+                aria-describedby="isActiveHelp" />
               <label class="form-check-label ms-3" for="is_active">Set as active</label>
-              <div
-                id="isActiveHelp"
-                class="form-text text-xs text-danger"
-                v-if="errorMsg?.city"
-                v-for="message in errorMsg.city"
-              >
+              <div id="isActiveHelp" class="form-text text-xs text-danger" v-if="errorMsg?.city"
+                v-for="message in errorMsg.city">
                 {{ message }}
               </div>
             </div>

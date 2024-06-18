@@ -4,11 +4,13 @@ const emits = defineEmits(['close'])
 const cartItems = ref()
 const selectedItemIds = ref<number[]>([])
 const errorMsg = ref('')
+const loading = ref(true)
 
 async function getCartItems() {
-  await useApiFetch('/sanctum/csrf-cookie')
+  loading.value = true
+  await useApiFetch('/csrf-cookie')
 
-  const result = await useApiFetch(`/api/v1/carts`, {
+  const result = await useApiFetch(`/carts`, {
     headers: {
       Accept: 'application/json',
     },
@@ -20,6 +22,7 @@ async function getCartItems() {
   }
 
   cartItems.value = (result.data.value as { message: string; data: any }).data
+  loading.value = false
 }
 
 onMounted(async () => {
@@ -42,28 +45,23 @@ onMounted(async () => {
           <span>{{ errorMsg }}</span>
         </div>
 
-        <CardCartInfoItem
-          :show-check="false"
-          v-if="cartItems"
-          v-for="item in cartItems"
-          :cart-info="item"
-          :checked="selectedItemIds.includes(item.id)"
-          @check="
-            () => {
-              if (item.unavailable) return
-              selectedItemIds.push(item.id)
-            }
-          "
-          @uncheck="
-            () => {
+        <div class="placeholder-glow d-flex flex-column gap-3" v-if="loading && !cartItems">
+          <div v-for="n in 2" class="placeholder w-100 rounded-1" style="height: 80px"></div>
+        </div>
+
+        <CardCartInfoItem :show-check="false" v-if="cartItems && !loading" v-for="item in cartItems" :cart-info="item"
+          :checked="selectedItemIds.includes(item.id)" @check="() => {
+            if (item.unavailable) return
+            selectedItemIds.push(item.id)
+          }
+            " @uncheck="() => {
               if (item.unavailable) return
               selectedItemIds = selectedItemIds.filter((id) => id !== item.id)
             }
-          "
-          @read-detail="$emit('close')"
-        />
+              " @read-detail="$emit('close')" />
 
-        <div class="text-muted text-sm py-4 text-center" v-if="cartItems && !cartItems.length">Your cart is empty</div>
+        <div class="text-muted text-sm py-4 text-center" v-if="!loading && cartItems && !cartItems.length">Your cart is
+          empty</div>
       </div>
 
       <div class="custom-modal__footer" v-if="cartItems && cartItems.length">

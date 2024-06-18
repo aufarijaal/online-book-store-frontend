@@ -1,7 +1,5 @@
 <script lang="ts" setup>
-import toRupiah from '@develoka/angka-rupiah-js'
-
-const auth = useAuthStore()
+const config = useRuntimeConfig()
 
 definePageMeta({
   middleware: ['authenticated', 'regular-user'],
@@ -12,22 +10,40 @@ useHead({
   script: [
     {
       type: 'text/javascript',
-      src: 'https://app.sandbox.midtrans.com/snap/snap.js',
-      'data-client-key': 'SB-Mid-client-ZBIk3xOtAcKZf7-v',
+      src: config.public.midtransSnapUrl,
+      'data-client-key': config.public.midtransClientKey,
     },
   ],
 })
 
 const orders = ref()
 const errorMsg = ref('')
+const loading = ref(true)
+const route = useRoute()
+const router = useRouter()
+const paginationInfo = ref<PaginationInfo>({
+  currentPage: 0,
+  count: 0,
+  from: 0,
+  to: 0,
+  total: 0,
+  hasNextPage: false,
+  hasPrevPage: false,
+  pages: [],
+  lastPage: 0
+})
 
 async function getOrders() {
-  await useApiFetch('/sanctum/csrf-cookie')
+  loading.value = true
+  await useApiFetch('/csrf-cookie')
 
-  const result = await useApiFetch(`/api/v1/orders`, {
+  const result = await useApiFetch(`/orders`, {
     headers: {
       Accept: 'application/json',
     },
+    query: {
+      ...route.query
+    }
   })
 
   if (result?.error.value) {
@@ -35,7 +51,30 @@ async function getOrders() {
     return
   }
 
-  orders.value = (result.data.value as { message: string; data: any }).data
+  orders.value = (result.data.value as { message: string; data: any }).data.data
+  paginationInfo.value = {
+    currentPage: (result.data.value as any).data.current_page,
+    count: (result.data.value as any).data.count,
+    from: (result.data.value as any).data.from,
+    to: (result.data.value as any).data.to,
+    total: (result.data.value as any).data.total,
+    hasNextPage: (result.data.value as any).data.next_page_url !== null,
+    hasPrevPage: (result.data.value as any).data.next_page_url !== null,
+    pages: (result.data.value as any).data.links.slice(1, -1),
+    lastPage: (result.data.value as any).data.last_page
+  }
+
+  loading.value = false
+}
+
+function re(anotherParam: Record<string, string | number>) {
+  router.replace({
+    path: route.path,
+    query: {
+      ...route.query,
+      ...anotherParam
+    }
+  })
 }
 
 async function pay(token: string) {
@@ -44,11 +83,15 @@ async function pay(token: string) {
 
 onMounted(async () => {
   await getOrders()
+
+  router.afterEach(async () => {
+    await getOrders()
+  })
 })
 </script>
 <template>
   <div id="orders-page">
-    <main class="container px-3 px-sm-0" style="padding: 100px 0">
+    <main class="container px-3 px-sm-0 d-flex flex-column" style="padding: 100px 0">
       <!-- Alert -->
       <div class="alert alert-dismissible alert-danger" v-show="errorMsg">
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
@@ -57,90 +100,27 @@ onMounted(async () => {
 
       <div class="mb-3 fw-bold fs-5">Your Orders</div>
 
-      <!-- <div class="form-group mb-4" style="width: max-content">
-        <label for="selectSortBy" class="form-label">Sort by</label>
-        <select class="form-select" id="selectSortBy">
-          <option value="payment_status">Payment status</option>
-          <option value="total_amount">Total Amount</option>
+      <div class="d-flex gap-1 mb-3" style="width: max-content; align-self: end;">
+        <select class="form-select form-select-sm" aria-label="Default select example"
+          @change="(e) => re({ sortBy: (e.target as any)!.value })" :value="$route.query.sortBy ?? 'newest'">
+          <option value="newest" selected>Newest</option>
+          <option value="oldest">Oldest</option>
         </select>
-      </div> -->
-
-      <div class="card bg-secondary mb-3 w-100" v-if="orders" v-for="order in orders">
-        <div class="card-body">
-          <div class="mb-3 d-flex justify-content-between align-items-center">
-            <span class="text-muted text-sm">Order ID: #{{ order.id }}</span>
-            <span
-              :class="[
-                'badge',
-                order.status === 'unpaid' ? 'bg-warning' : order.status === 'paid' ? 'bg-primary' : 'bg-danger',
-              ]"
-              >{{ order.status === 'unpaid' ? 'Unpaid' : order.status === 'paid' ? 'Paid' : 'Expired' }}</span
-            >
-          </div>
-          <div>
-            <div class="card bg-secondary mb-3 w-100" v-if="order.order_items" v-for="item in order.order_items">
-              <div class="card-body">
-                <div class="d-flex">
-                  <div style="flex-shrink: 0">
-                    <NuxtLink :to="`/books/${item.book.slug}`">
-                      <img
-                        :src="item.book.cover_image"
-                        onerror="this.onerror=null; this.src='/fallback_image.jpg'"
-                        :alt="`${item.book.title}'s Cover Image`"
-                        style="max-height: 80px"
-                      />
-                    </NuxtLink>
-                  </div>
-                  <div class="ms-4" style="flex-grow: 1">
-                    <NuxtLink
-                      :to="`/books/${item.book.slug}`"
-                      class="fw-bold"
-                      style="text-decoration: none; color: unset"
-                      >{{ item.book.title }}</NuxtLink
-                    >
-                    <div class="d-flex justify-content-between text-sm mt-3">
-                      <div>Qty</div>
-                      <div>{{ item.qty }}</div>
-                    </div>
-                    <div class="d-flex justify-content-between text-sm">
-                      <div>Item Price</div>
-                      <div class="text-primary">
-                        {{ toRupiah(item.item_price, { floatingPoint: 0 }) }}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <hr />
-          <div class="d-flex align-items-center justify-content-end gap-2">
-            <div>Total Amount:</div>
-            <div class="fw-bold text-success">
-              {{ toRupiah(order.total_amount, { floatingPoint: 0 }) }}
-            </div>
-          </div>
-
-          <div class="d-flex align-items-center justify-content-end gap-2 text-xs mt-2">
-            <div>Order Date: {{ order.order_date }}</div>
-          </div>
-
-          <div class="d-flex align-items-center justify-content-end gap-2 text-xs mt-4">
-            <button class="btn btn-success" @click="pay(order.token)" v-if="order.status === 'unpaid'">
-              Finish Payment
-            </button>
-
-            <button
-              disabled
-              class="btn btn-primary"
-              @click="() => {}"
-              v-if="order.status === 'paid' || order.status === 'expired'"
-            >
-              Reorder
-            </button>
-          </div>
-        </div>
       </div>
+
+      <div class="placeholder-glow mb-3 w-100 d-flex flex-column gap-2" v-if="!orders && loading">
+        <div class="placeholder rounded-1" v-for="n in 4" style="height: 326px"></div>
+      </div>
+
+      <OrderCard v-if="orders && !loading" v-for="order in orders" :order="order"
+        @pay-if-unpaid="(token) => pay(token)" />
+
+      <div class="text-black-50 text-center my-4" v-if="!loading && orders && !orders.length">
+        You don't have any orders yet
+      </div>
+
+      <Pagination style="align-self: center;" :pagination-info="paginationInfo"
+        :show-skeleton-if="loading && !orders" />
     </main>
   </div>
 </template>

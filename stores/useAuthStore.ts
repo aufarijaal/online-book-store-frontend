@@ -24,13 +24,13 @@ export const useAuthStore = defineStore('auth', () => {
   const isLoggedIn = computed(() => !!user.value)
 
   async function fetchUser() {
-    const { data } = await useApiFetch('/api/user')
+    const { data } = await useApiFetch('/user')
     user.value = data.value as User
   }
 
   async function register(info: RegistrationInfo) {
     if (!info.name || !info.email || !info.password || !info.password_confirmation) return
-    await useApiFetch('/sanctum/csrf-cookie', {
+    await useApiFetch('/csrf-cookie', {
       headers: {
         Accept: 'application/json',
       },
@@ -53,7 +53,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   async function login(credentials: Credentials) {
     if (!credentials.email || !credentials.password) return
-    await useApiFetch('/sanctum/csrf-cookie', {
+    await useApiFetch('/csrf-cookie', {
       headers: {
         Accept: 'application/json',
       },

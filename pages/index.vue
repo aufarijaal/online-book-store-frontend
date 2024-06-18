@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import toRupiah from '@develoka/angka-rupiah-js'
-
 definePageMeta({
   middleware: ['public-or-not-admin'],
 })
@@ -13,9 +11,9 @@ const bookResponse = ref<any>()
 const errorMsg = ref('')
 
 async function getBooks() {
-  await useApiFetch('/sanctum/csrf-cookie')
+  await useApiFetch('/csrf-cookie')
 
-  const result = await useApiFetch('/api/v1/books?forHomePage=true', {
+  const result = await useApiFetch('/books?forHomePage=true', {
     headers: {
       Accept: 'application/json',
     },
@@ -51,6 +49,12 @@ onMounted(async () => {
               Enter a World of Books and Explore Our Online Bookstore for Endless Reading Pleasure
             </p>
           </div>
+
+          <Carousel :images="[
+            '/carousel-1.png',
+            '/carousel-2.jpg',
+            '/carousel-3.jpg',
+          ]" :images-styles="{ height: '400px', objectFit: 'cover' }" />
         </div>
       </section>
 
@@ -58,39 +62,12 @@ onMounted(async () => {
         <div class="container">
           <div class="fs-4 fw-bold mb-3 text-center">Recommended for you</div>
           <div class="d-flex flex-wrap gap-3 justify-content-center">
-            <NuxtLink
-              v-if="bookResponse"
-              v-for="book in bookResponse.data"
-              style="width: 265px; height: 330px; text-decoration: none"
-              :to="`/books/${book.slug}`"
-            >
-              <div class="card shadow-sm p-2">
-                <img
-                  :src="book.cover_image"
-                  onerror="this.onerror=null; this.src='/fallback_image.jpg'"
-                  :style="{
-                    height: '200px',
-                    width: '100%',
-                    objectFit: 'contain',
-                  }"
-                />
+            <BookCard v-if="bookResponse" v-for="book in bookResponse.data" :book="book" />
 
-                <div class="card-body text-center d-flex flex-column justify-content-center gap-2">
-                  <div class="text-muted line-clamp-1">by {{ book.author ? book.author.name : 'Unknown' }}</div>
-                  <div class="fw-bold line-clamp-1">{{ book.title }}</div>
-                  <div class="fw-bold text-success">
-                    {{ toRupiah(book.price, { floatingPoint: 0 }) }}
-                  </div>
-                </div>
+            <div v-if="!bookResponse" class="placeholder-glow d-flex flex-wrap gap-3 justify-content-center">
+              <div v-for="n in 20" style="width: 265px; height: 330px" class="placeholder rounded-1">
               </div>
-            </NuxtLink>
-
-            <div
-              v-if="!bookResponse"
-              v-for="n in 20"
-              style="width: 265px; height: 330px"
-              class="skeleton-box rounded"
-            ></div>
+            </div>
           </div>
         </div>
       </div>

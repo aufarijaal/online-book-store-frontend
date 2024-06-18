@@ -6,6 +6,7 @@ export function useApiFetch<T>(path: string, options: UseFetchOptions<T> = {}) {
   }
 
   const token = useCookie('XSRF-TOKEN')
+  const config = useRuntimeConfig()
 
   if (token.value) {
     headers['X-XSRF-TOKEN'] = token.value as string
@@ -18,7 +19,7 @@ export function useApiFetch<T>(path: string, options: UseFetchOptions<T> = {}) {
     }
   }
 
-  return useFetch('http://localhost' + path, {
+  return useFetch(config.public.apiUrl + path, {
     credentials: 'include',
     ...options,
     watch: false,

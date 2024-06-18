@@ -6,9 +6,9 @@ export const useMainStore = defineStore('main', () => {
   const cartItemsCount = ref(0)
 
   async function getCartItemsCount() {
-    await useApiFetch('/sanctum/csrf-cookie')
+    await useApiFetch('/csrf-cookie')
 
-    const result = await useApiFetch(`/api/v1/carts/count`, {
+    const result = await useApiFetch(`/carts/count`, {
       headers: {
         Accept: 'application/json',
       },

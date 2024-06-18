@@ -19,7 +19,15 @@ useHead({
 async function search() {
   if (!q.value.trim()) return
 
-  router.push(`/books/search?q=${q.value}`)
+  router.push({
+    path: '/search',
+    query: {
+      q: q.value,
+      page: 1,
+      sortBy: 'title',
+      sortDirection: 'asc'
+    }
+  })
 }
 
 onMounted(async () => {
@@ -29,12 +37,12 @@ onMounted(async () => {
   //   }
   // });
 
-  await useApiFetch('/sanctum/csrf-cookie', {
+  await useApiFetch('/csrf-cookie', {
     headers: {
       Accept: 'application/json',
     },
   })
-  const { data } = await useApiFetch('/api/v1/genres?getGenreForNav=true')
+  const { data } = await useApiFetch('/genres?getGenreForNav=true')
 
   genres.value = (data.value as any).data
 
@@ -54,45 +62,29 @@ onMounted(async () => {
             <img src="/logo.svg" height="30" />
             <NuxtLink class="navbar-brand" to="/">Garadia</NuxtLink>
           </div>
-          <button
-            class="navbar-toggler"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#navbarCollapse"
-            aria-controls="navbarCollapse"
-            aria-expanded="false"
-            aria-label="Toggle navigation"
-          >
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse"
+            aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
           </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav me-auto mb-2 mb-md-0">
               <li class="nav-item dropdown" data-bs-theme="light">
-                <a
-                  class="nav-link dropdown-toggle"
-                  href="#"
-                  id="navbarDropdown"
-                  role="button"
-                  data-bs-toggle="dropdown"
-                  aria-expanded="false"
-                >
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
+                  aria-expanded="false">
                   Genres
                 </a>
-                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                  <li v-for="genre in genres">
-                    <NuxtLink class="dropdown-item" :to="`/genres/${genre.slug}`">{{ genre.name }}</NuxtLink>
+                <ul class="dropdown-menu cursor-pointer" aria-labelledby="navbarDropdown">
+                  <li class="dropdown-item"> All </li>
+                  <li v-if="genres" v-for="genre in genres">
+                    <NuxtLink :class="['dropdown-item', $route.path === `/genres/${genre.slug}` ? 'active' : '']"
+                      :to="`/genres/${genre.slug}`">{{ genre.name }}</NuxtLink>
                   </li>
                 </ul>
               </li>
               <li class="nav-item">
                 <form class="d-flex" @submit.prevent="search">
-                  <input
-                    class="form-control me-2"
-                    type="search"
-                    placeholder="Search book"
-                    aria-label="Search"
-                    v-model="q"
-                  />
+                  <input class="form-control me-2" type="search" placeholder="Search book" aria-label="Search"
+                    v-model="q" />
                   <button class="btn btn-success" type="submit">Search</button>
                 </form>
               </li>
@@ -108,12 +100,9 @@ onMounted(async () => {
               <li class="nav-item d-flex align-items-center text-white" v-if="auth.isLoggedIn">
                 <button class="btn" style="position: relative" @click="showModalCartInfo = true">
                   <div id="cart-button" style="position: relative">
-                    <CartIcon />
-                    <span
-                      class="bg-danger p-0 d-flex justify-content-center align-items-center text-xs rounded p-1"
-                      style="position: absolute; top: -13px; right: -7px"
-                      >{{ mainStore.cartItemsCount }}</span
-                    >
+                    <Icon name="mdi:cart" size="20" />
+                    <span class="bg-danger p-0 d-flex justify-content-center align-items-center text-xs rounded p-1"
+                      style="position: absolute; top: -13px; right: -7px">{{ mainStore.cartItemsCount }}</span>
                   </div>
 
                   <Teleport to="body">
@@ -123,15 +112,9 @@ onMounted(async () => {
               </li>
 
               <li class="nav-item dropdown" v-if="auth.isLoggedIn" data-bs-theme="light">
-                <a
-                  class="nav-link dropdown-toggle text-light"
-                  href="#"
-                  id="navbarDropdown"
-                  role="button"
-                  data-bs-toggle="dropdown"
-                  aria-expanded="false"
-                >
-                  <CustomerIcon />
+                <a class="nav-link dropdown-toggle text-light" href="#" id="navbarDropdown" role="button"
+                  data-bs-toggle="dropdown" aria-expanded="false">
+                  <Icon name="mdi:account" size="20" />
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                   <li>

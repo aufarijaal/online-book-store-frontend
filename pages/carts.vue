@@ -18,6 +18,7 @@ const selectedItemIds = ref<number[]>([])
 const mainStore = useMainStore()
 const editMode = ref(false)
 const errorMsg = ref('')
+const initialLoading = ref(true)
 
 const totalAmount = computed(() => {
   if (!selectedItemIds.value.length || !cartItems.value.length) return 0
@@ -33,9 +34,10 @@ const totalAmount = computed(() => {
 })
 
 async function getCartItems() {
-  await useApiFetch('/sanctum/csrf-cookie')
+  initialLoading.value = true
+  await useApiFetch('/csrf-cookie')
 
-  const result = await useApiFetch(`/api/v1/carts`, {
+  const result = await useApiFetch(`/carts`, {
     headers: {
       Accept: 'application/json',
     },
@@ -47,20 +49,22 @@ async function getCartItems() {
   }
 
   cartItems.value = (result.data.value as { message: string; data: any }).data
+  initialLoading.value = false
 }
 
-function checkout() {
+async function checkout() {
   if (!selectedItemIds.value.length) return
 
   mainStore.idstoCheckout = selectedItemIds.value
+  await mainStore.getCartItemsCount()
   router.push('/checkout')
 }
 
 async function removeCartItem(id: number) {
   if (confirm('Are you sure?')) {
-    await useApiFetch('/sanctum/csrf-cookie')
+    await useApiFetch('/csrf-cookie')
 
-    const result = await useApiFetch('/api/v1/carts/' + id, {
+    const result = await useApiFetch('/carts/' + id, {
       method: 'DELETE',
       headers: {
         Accept: 'application/json',
@@ -93,56 +97,46 @@ onMounted(async () => {
 
       <div class="mb-4 d-flex justify-content-between">
         <div class="fw-bold fs-5">🛒 Your Cart</div>
-        <div class="btn btn-outline-success btn-sm" @click="editMode = !editMode" v-if="cartItems && cartItems.length">
-          <PencilIcon />
+        <div class="btn btn-outline-success btn-sm" @click="editMode = !editMode"
+          v-if="!initialLoading && cartItems && cartItems.length">
+          <Icon name="mdi:pencil" size="20" />
           {{ editMode ? 'Finish' : 'Edit' }}
         </div>
       </div>
 
-      <div>
+      <div v-if="!initialLoading">
         <div v-if="cartItems" v-for="item in cartItems" class="d-flex w-100">
           <div style="flex-grow: 1">
-            <CardCartInfoItem
-              show-check
-              :cart-info="item"
-              :checked="selectedItemIds.includes(item.id)"
-              @check="
-                () => {
-                  if (item.unavailable) return
-                  selectedItemIds.push(item.id)
-                }
-              "
-              @uncheck="
-                () => {
-                  if (item.unavailable) return
-                  selectedItemIds = selectedItemIds.filter((id) => id !== item.id)
-                }
-              "
-              @read-detail="$emit('close')"
-            />
+            <CardCartInfoItem show-check :cart-info="item" :checked="selectedItemIds.includes(item.id)" @check="() => {
+              if (item.unavailable) return
+              selectedItemIds.push(item.id)
+            }
+              " @uncheck="() => {
+                if (item.unavailable) return
+                selectedItemIds = selectedItemIds.filter((id) => id !== item.id)
+              }
+                " @read-detail="$emit('close')" />
           </div>
           <div style="flex-shrink: 0" class="px-2 mb-3" v-if="editMode">
             <button class="btn btn-danger btn-sm h-100" @click="removeCartItem(item.id)">
-              <TrashIcon />
+              <Icon name="mdi:trash" size="20" />
             </button>
           </div>
         </div>
       </div>
 
-      <div class="text-center text-muted text-sm mt-2">
-        {{ cartItems && cartItems.length ? "That's all." : 'Your cart is empty.' }}
+      <div class="placeholder-glow d-flex flex-column gap-2" v-else>
+        <div class="placeholder w-100 rounded-1" style="height: 124px" v-for="n in 5"></div>
+      </div>
+
+      <div class="text-center text-muted text-sm mt-2" v-if="!initialLoading && cartItems && !cartItems.length">
+        Your cart is empty
       </div>
 
       <div style="height: 60px; width: 100%; position: fixed; bottom: 0; left: 0" class="d-flex">
-        <div
-          class="bg-secondary border w-100 container h-100 d-flex align-items-center justify-content-between"
-          style="z-index: 10"
-        >
+        <div class="bg-secondary border w-100 container h-100 d-flex align-items-center justify-content-between"
+          style="z-index: 10">
           <div>
-            <div class="text-sm">
-              Total:
-              <span class="fw-bold">{{ selectedItemIds.length }} Items</span>
-            </div>
             <div class="text-sm">
               Amount:
               <span class="text-success fw-bold">{{ toRupiah(totalAmount, { floatingPoint: 0 }) }}</span>
@@ -150,19 +144,8 @@ onMounted(async () => {
           </div>
 
           <div class="d-flex align-items-center gap-4">
-            <!-- <div class="form-check">
-              <input
-                class="form-check-input"
-                type="checkbox"
-                value=""
-                id="select-all-cart-items"
-              />
-              <label class="form-check-label" for="select-all-cart-items">
-                Select all
-              </label>
-            </div> -->
             <button class="btn btn-success" :disabled="selectedItemIds.length === 0" @click="checkout">
-              Checkout Now
+              Make order
             </button>
           </div>
         </div>

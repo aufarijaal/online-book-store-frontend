@@ -118,3 +118,29 @@ interface BookResponse {
     total: number
   }
 }
+
+type SortDirection = 'asc' | 'desc'
+
+interface Filters {
+  q?: string
+  dataPerPage?: number
+  page?: number
+  sortBy?: string
+  sortDirection?: SortDirection
+}
+
+interface PaginationInfo {
+  currentPage: number
+  count: number
+  from: number
+  to: number
+  total: number
+  hasNextPage: boolean
+  hasPrevPage: boolean
+  pages: {
+    url: string
+    label: string
+    active: boolean
+  }[]
+  lastPage: number
+}

@@ -1,5 +1,22 @@
-<script lang="ts" setup>
-const auth = useAuthStore()
+<script setup lang="ts">
+import { createColumnHelper } from '@tanstack/vue-table';
+import dayjs from 'dayjs';
+import { toast } from 'vue-sonner';
+import toRupiah from "@develoka/angka-rupiah-js"
+
+type BookData = {
+  id: number,
+  author_id: number,
+  author_name: string,
+  genre_id: number,
+  genre_name: string,
+  title: string,
+  published_date: string,
+  price: number
+  stock_qty: number,
+  created_at: string,
+  cover_image?: string
+}
 
 definePageMeta({
   layout: 'admin',
@@ -10,53 +27,112 @@ useHead({
   title: 'Admin · Books',
 })
 
-const route = useRoute()
-const router = useRouter()
-const bookResponse = ref<BookResponse>()
-const sizePerPage = ref(20)
-const currentPage = ref(0)
-const selectedIds = ref<number[]>([])
-const showAddBookModal = ref(false)
-const searchInput = ref('')
+const columnHelper = createColumnHelper<BookData>()
+const columns = [
+  columnHelper.accessor("id", {
+    header: "ID",
+    cell: info => info.getValue(),
+  }),
+  columnHelper.accessor("author_name" as any, {
+    header: "Author",
+    cell: info => info.getValue(),
+  }),
+  columnHelper.accessor("genre_name", {
+    header: "Genre",
+    cell: info => info.getValue(),
+  }),
+  columnHelper.accessor("title", {
+    header: "Title",
+    cell: info => h('strong', {
+      innerText: info.getValue()
+    }),
+  }),
+  columnHelper.accessor("published_date", {
+    header: "Published Date",
+    cell: info => info.getValue(),
+  }),
+  columnHelper.accessor("price", {
+    header: "Price",
+    cell: info => toRupiah(info.getValue(), { floatingPoint: 0 }),
+  }),
+  columnHelper.accessor("stock_qty", {
+    header: "Stock",
+    cell: info => info.getValue(),
+  }),
+  columnHelper.accessor("created_at", {
+    header: "Created At",
+    cell: info => dayjs(info.getValue()).format("YYYY-MM-DD HH:mm:ss"),
+  }),
+  columnHelper.accessor("cover_image", {
+    header: "Cover",
+    cell: info => h("img", {
+      src: !info.getValue() ? `/fallback_image.jpg` : `http://localhost:8000/storage/covers/${info.getValue()}`,
+      height: '100px',
+      width: '50px',
+      style: {
+        objectFit: 'contain'
+      }
+    }),
+    enableSorting: false,
+  }),
+]
+const data = ref<BookData[]>([])
+const paginationInfo = ref<PaginationInfo>({
+  currentPage: 0,
+  count: 0,
+  from: 0,
+  to: 0,
+  total: 0,
+  hasNextPage: false,
+  hasPrevPage: false,
+  pages: [],
+  lastPage: 0
+})
+const getDataLoading = ref(true)
+const route = useRoute();
+const router = useRouter();
+const inputChangeCover = ref<HTMLInputElement>()
 
-async function getBooks() {
-  await useApiFetch('/sanctum/csrf-cookie')
+async function getData(query?: Filters) {
+  getDataLoading.value = true
+  await useApiFetch('/csrf-cookie')
 
-  const params = new URLSearchParams({
-    page: currentPage.value.toString(),
-    sizePerPage: sizePerPage.value.toString(),
-    q: searchInput.value,
-  })
-
-  const result = await useApiFetch('/api/v1/admin/books?' + params, {
+  const result = await useApiFetch('/admin/books', {
+    query,
     headers: {
       Accept: 'application/json',
     },
   })
 
   if (result?.error.value) {
-    alert(result.error.value?.data.errors)
+    toast.error(result.error.value?.data.errors)
     return
   }
-  bookResponse.value = result.data.value as BookResponse
+
+  data.value = (result.data.value as any).data.data as BookData[]
+  paginationInfo.value = {
+    currentPage: (result.data.value as any).data.current_page,
+    count: (result.data.value as any).data.count,
+    from: (result.data.value as any).data.from,
+    to: (result.data.value as any).data.to,
+    total: (result.data.value as any).data.total,
+    hasNextPage: (result.data.value as any).data.next_page_url !== null,
+    hasPrevPage: (result.data.value as any).data.next_page_url !== null,
+    pages: (result.data.value as any).data.links.slice(1, -1),
+    lastPage: (result.data.value as any).data.last_page
+  }
+  getDataLoading.value = false
 }
 
-async function deleteBooks() {
-  let message = ''
-  if (selectedIds.value.length === 1) {
-    message = `Are you sure you want to delete a book with id ${selectedIds.value[0]}?`
-  } else if (selectedIds.value.length === 2) {
-    message = `Are you sure want to delete a books with id ${selectedIds.value[0]} and ${selectedIds.value[1]}?`
-  } else {
-    const lastId = selectedIds.value[selectedIds.value.length - 1]
-    const idsString = selectedIds.value.slice(0, selectedIds.value.length - 1).join(', ')
-    message = `Are you sure you want to delete books with id ${idsString}, and ${lastId}?`
-  }
+function edit(data: any) {
+  router.push(`/admin/books/${data.id}/edit`)
+}
 
-  if (confirm(message)) {
-    await useApiFetch('/sanctum/csrf-cookie')
+async function remove(ids: number[]) {
+  try {
+    await useApiFetch('/csrf-cookie')
 
-    const result = await useApiFetch('/api/v1/admin/books?ids=' + selectedIds.value.join(','), {
+    const result = await useApiFetch('/admin/authors?ids=' + ids.join(','), {
       method: 'DELETE',
       headers: {
         Accept: 'application/json',
@@ -64,273 +140,100 @@ async function deleteBooks() {
     })
 
     if (result?.error.value) {
-      alert(result.error.value?.data.errors)
+      toast.error(result.error.value?.data.errors)
       return
     }
 
-    selectedIds.value = []
-    await getBooks()
-  } else {
-    selectedIds.value = []
+    await getData()
+  } catch (error: any) {
+    toast.error(error)
+  } finally {
+
   }
 }
 
-watch([sizePerPage, currentPage], async () => {
-  await getBooks()
-})
+async function removeCover(bookId: number) {
+  if (confirm(`Are you sure want to remove cover?`)) {
+    await useApiFetch('/csrf-cookie')
 
-onMounted(async () => {
-  if (route.query.redirectToPage) {
-    currentPage.value = parseInt(route.query.redirectToPage.toString())
-  } else {
-    currentPage.value = 1
+    const result = await useApiFetch(`/admin/books/${bookId}/cover`, {
+      method: 'DELETE',
+    })
+
+    if (result?.error.value) {
+      toast.error(result.error.value.data.message)
+      return
+    }
+
+    getData();
+  }
+}
+
+async function handleUpdateCover(event: any, params: { id: number, title: string, author_id: number }) {
+  await useApiFetch('/csrf-cookie')
+
+  const formData = new FormData();
+  for (const [key, value] of Object.entries(params)) {
+    formData.append(key, value as any);
   }
 
-  await getBooks()
+  formData.append(
+    "cover_image",
+    event.target.files[0]
+  );
+
+  formData.append(
+    "_method",
+    "PUT"
+  );
+
+  const result = await useApiFetch(`/admin/books/${params.id}/cover`, {
+    method: 'POST',
+    body: formData,
+    headers: {
+      Accept: 'application/json',
+    },
+  })
+
+  if (result?.error.value) {
+    toast.error(result.error.value.data.message)
+    return
+  }
+
+  getData();
+}
+
+onMounted(() => {
+  getData(route.query);
 })
 </script>
 
 <template>
-  <div
-    :style="{
-      display: 'flex',
-      gap: '10px',
-      flexWrap: 'wrap',
-      overflow: 'auto',
-    }"
-    class="p-4 pt-0"
-  >
-    <Teleport to="body">
-      <ModalsAddBookModal v-if="showAddBookModal" @close="showAddBookModal = false" />
-    </Teleport>
+  <div class="p-4 pt-0">
+    <DataTable title="Books" :columns="columns" :data="data" :pagination-info="paginationInfo"
+      :get-data-loading="getDataLoading" @rerender="getData" @edit="edit" @remove="(ids) => remove(ids)"
+      @create="() => $router.push('/admin/books/create')">
+      <template #toolbar>
+      </template>
 
-    <div class="w-100">
-      <div class="datatable-toolbar d-flex align-items-center mb-3 p-2 gap-2">
-        <!-- Search bar -->
-        <div class="input-group">
-          <input
-            type="text"
-            class="form-control"
-            placeholder="Search"
-            aria-label="Search"
-            aria-describedby="button-search"
-            v-model="searchInput"
-            @keyup.enter="getBooks"
-          />
-          <button class="btn btn-primary" type="button" id="button-search" @click="getBooks">
-            <SearchIcon width="20" height="20" />
-          </button>
-        </div>
-
-        <!-- Size Per Page -->
-        <div class="dropdown">
-          <button
-            class="btn btn-primary dropdown-toggle"
-            type="button"
-            id="dropdownMenuButton1"
-            data-bs-toggle="dropdown"
-            aria-expanded="false"
-          >
-            Size per page
-          </button>
-          <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-            <li>
-              <button
-                class="dropdown-item"
-                @click="
-                  () => {
-                    currentPage = 1
-                    sizePerPage = 20
-                  }
-                "
-              >
-                20
-              </button>
-            </li>
-            <li>
-              <button
-                class="dropdown-item"
-                @click="
-                  () => {
-                    currentPage = 1
-                    sizePerPage = 50
-                  }
-                "
-              >
-                50
-              </button>
-            </li>
-            <li>
-              <button
-                class="dropdown-item"
-                @click="
-                  () => {
-                    currentPage = 1
-                    sizePerPage = 100
-                  }
-                "
-              >
-                100
-              </button>
-            </li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="card">
-        <h5 class="card-header d-flex align-items-center justify-content-between">
-          <div class="fs-5">Books</div>
-          <div class="d-flex align-items-center gap-2">
-            <button class="btn btn-primary btn-sm" @click="showAddBookModal = true">
-              <PlusIcon />
-            </button>
-            <button
-              class="btn btn-success btn-sm"
-              :disabled="!selectedIds.length"
-              @click="$router.push(`/admin/books/${selectedIds[0]}/edit?redirectPage=${currentPage}`)"
-            >
-              <PencilIcon />
-            </button>
-            <button class="btn btn-danger btn-sm" :disabled="!selectedIds.length" @click="deleteBooks">
-              <TrashIcon />
-              ({{ selectedIds.length }})
-            </button>
-            <button
-              class="btn btn-light btn-sm d-flex align-items-center gap-2"
-              @click="selectedIds = []"
-              :disabled="!selectedIds.length"
-            >
-              <XIcon />
-              Unselect all
-            </button>
-          </div>
-        </h5>
-        <div class="table-responsive text-nowrap" style="max-height: calc(100vh - 300px)">
-          <table class="table table-striped" v-if="bookResponse">
-            <thead>
-              <tr>
-                <th>
-                  <div class="form-check">
-                    <input
-                      class="form-check-input"
-                      type="checkbox"
-                      @change="
-                        (e) => {
-                          if ((e.target as HTMLInputElement).checked && bookResponse) {
-                            selectedIds = bookResponse?.data.data.map((item) => item.id)
-                          } else selectedIds = []
-                        }
-                      "
-                      :checked="selectedIds.length === bookResponse.data.data.length"
-                      style="transform: scale(1.4)"
-                    />
-                  </div>
-                </th>
-                <th>ID</th>
-                <th>Author ID</th>
-                <th>Genre ID</th>
-                <th>Title</th>
-                <th>Cover</th>
-                <th>Published Date</th>
-                <th>Price</th>
-                <th>Stock Qty</th>
-                <th>Created At</th>
-                <th>Updated At</th>
-                <th>Deleted At</th>
-              </tr>
-            </thead>
-            <tbody class="table-border-bottom-0">
-              <tr v-for="book in bookResponse?.data.data">
-                <td>
-                  <div class="form-check">
-                    <input
-                      class="form-check-input"
-                      type="checkbox"
-                      @change="
-                        (e) => {
-                          if ((e.target as HTMLInputElement).checked) {
-                            selectedIds.push(book.id)
-                          } else selectedIds = selectedIds.filter((item) => item !== book.id)
-                        }
-                      "
-                      :checked="selectedIds.includes(book.id)"
-                      :id="`mark-${book.id}`"
-                      style="transform: scale(1.4)"
-                    />
-                  </div>
-                </td>
-                <td>{{ book.id }}</td>
-                <td>{{ book.author_id }}</td>
-                <td>{{ book.genre_id }}</td>
-                <td>{{ book.title }}</td>
-                <td>
-                  <img
-                    style="max-height: calc(60px - 16px)"
-                    :src="book.cover_image"
-                    :alt="`${book.title}'s cover image`"
-                    onerror="this.onerror=null; this.src='/fallback_image.jpg'"
-                    v-if="book.cover_image"
-                  />
-                </td>
-                <td>{{ book.published_date }}</td>
-                <td>{{ book.price }}</td>
-                <td>{{ book.stock_qty }}</td>
-                <td>{{ book.created_at }}</td>
-                <td>{{ book.updated_at }}</td>
-                <td>{{ book.deleted_at ?? '-' }}</td>
-              </tr>
-            </tbody>
-          </table>
-
-          <!-- Table Loading placeholder-->
-          <div
-            :style="{
-              height: '100vh',
-              width: '100%',
-              display: 'grid',
-              placeItems: 'center',
-            }"
-            v-else
-          >
-            <div class="spinner-border" role="status">
-              <span class="visually-hidden">Loading...</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Footer -->
-      <div class="d-flex justify-content-between mt-2">
-        <div v-if="bookResponse">
-          Showing
-          {{ bookResponse?.data.per_page! * bookResponse?.data.current_page! }}/{{ bookResponse?.data.total }} entries
-        </div>
-        <div v-else>Loading...</div>
-
-        <!-- Pagination nav -->
-        <nav>
-          <ul class="pagination pagination-sm">
-            <li class="page-item" v-for="page in bookResponse?.data.links">
-              <div
-                :class="['page-link', page.active ? 'active' : '', page.url ? '' : 'disabled']"
-                style="cursor: pointer"
-                @click="
-                  currentPage = page.label.includes('Prev')
-                    ? bookResponse?.data.current_page! - 1
-                    : page.label.includes('Next')
-                      ? bookResponse?.data.current_page! + 1
-                      : parseInt(page.label)
-                "
-                :title="`page ${page.label.includes('Prev') ? bookResponse?.data.current_page! - 1 : page.label.includes('Next') ? bookResponse?.data.current_page! + 1 : parseInt(page.label)}`"
-              >
-                {{ page.label.replaceAll('&amp;laquo;', '').replaceAll('&amp;raquo;', '') }}
-              </div>
-            </li>
-          </ul>
-        </nav>
-      </div>
-    </div>
+      <template #cell-actions="{ row }">
+        <label :for="`input-change-cover-id-${row.original.id}`"
+          :class="['btn btn-sm', row.original.cover_image ? 'btn-success' : 'btn-info']"
+          :title="row.original.cover_image ? 'Change cover' : 'Upload a cover'">
+          <input type="file" hidden ref="inputChangeCover" :id="`input-change-cover-id-${row.original.id}`"
+            accept="image/png, image/jpeg, image/jpg" @change="(e) => handleUpdateCover(e, {
+              id: row.original.id,
+              title: row.original.title,
+              author_id: row.original.author_id
+            })">
+          <Icon name="mdi:image-edit-outline" size="20" v-if="row.original.cover_image" />
+          <Icon name="mdi:image-plus-outline" size="20" v-else />
+        </label>
+        <button class="btn-danger btn btn-sm" title="Remove cover" :disabled="!row.original.cover_image"
+          @click.stop="removeCover(row.original.id)">
+          <Icon name="mdi:image-remove-outline" size="20" />
+        </button>
+      </template>
+    </DataTable>
   </div>
 </template>
-
-<style></style>

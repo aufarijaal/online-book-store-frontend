@@ -3,7 +3,8 @@ import { defineNuxtConfig } from 'nuxt/config'
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   devtools: { enabled: false },
-  modules: ['@pinia/nuxt'],
+  ssr: false,
+  modules: ['@pinia/nuxt', 'nuxt-icon'],
   app: {
     head: {
       link: [
@@ -30,6 +31,15 @@ export default defineNuxtConfig({
         defineModel: true,
         propsDestructure: true,
       },
+    },
+    vueJsx: {},
+  },
+  runtimeConfig: {
+    public: {
+      apiUrl: '',
+      bookCoversUrl: '',
+      midtransSnapUrl: '',
+      midtransClientKey: '',
     },
   },
 })

@@ -13,6 +13,7 @@
     "@nuxt/devtools": "latest",
     "@types/chart.js": "^2.9.41",
     "nuxt": "^3.8.1",
+    "nuxt-icon": "^0.6.10",
     "sass": "^1.69.5",
     "vue": "^3.3.8",
     "vue-router": "^4.2.5"
@@ -20,10 +21,14 @@
   "dependencies": {
     "@develoka/angka-rupiah-js": "^1.0.3",
     "@pinia/nuxt": "^0.5.1",
+    "@tanstack/vue-table": "^8.17.3",
     "@vee-validate/nuxt": "^4.12.0",
+    "@vee-validate/zod": "^4.13.1",
     "@vueuse/core": "^10.7.0",
     "dayjs": "^1.11.10",
     "pinia": "^2.1.7",
-    "title-case": "^4.2.0"
+    "title-case": "^4.2.0",
+    "vue-sonner": "^1.1.2",
+    "zod": "^3.23.8"
   }
 }

@@ -1,11 +1,5 @@
 <script setup lang="ts">
 import dayjs from 'dayjs'
-import toRupiah from '@develoka/angka-rupiah-js'
-
-const route = useRoute()
-const author = ref<Author>()
-const books = ref()
-const errorMsg = ref('')
 
 useHead({
   title: `Author · Garadia`,
@@ -15,13 +9,32 @@ definePageMeta({
   middleware: ['public-or-not-admin'],
 })
 
-async function getAuthor() {
-  await useApiFetch('/sanctum/csrf-cookie')
+const data = ref()
+const errorMsg = ref('')
+const loading = ref(true)
+const router = useRouter()
+const route = useRoute()
+const paginationInfo = ref<PaginationInfo>({
+  currentPage: 0,
+  count: 0,
+  from: 0,
+  to: 0,
+  total: 0,
+  hasNextPage: false,
+  hasPrevPage: false,
+  pages: [],
+  lastPage: 0
+})
 
-  const result = await useApiFetch(`/api/v1/authors/${route.params.authorSlug}`, {
+async function getData(query?: any) {
+  loading.value = true
+  await useApiFetch('/csrf-cookie')
+
+  const result = await useApiFetch(`/authors/${route.params.authorSlug}`, {
     headers: {
       Accept: 'application/json',
     },
+    query
   })
 
   if (result?.error.value) {
@@ -29,69 +42,63 @@ async function getAuthor() {
     return
   }
 
-  author.value = (result.data.value as { message: string; data: any }).data as any
+  data.value = (result.data.value as any).data
+  paginationInfo.value = {
+    currentPage: (result.data.value as any).data.books.current_page,
+    count: (result.data.value as any).data.books.count,
+    from: (result.data.value as any).data.books.from,
+    to: (result.data.value as any).data.books.to,
+    total: (result.data.value as any).data.books.total,
+    hasNextPage: (result.data.value as any).data.books.next_page_url !== null,
+    hasPrevPage: (result.data.value as any).data.books.next_page_url !== null,
+    pages: (result.data.value as any).data.books.links.slice(1, -1),
+    lastPage: (result.data.value as any).data.books.last_page
+  }
 
-  books.value = (result.data.value as any).data.books
+  loading.value = false
 }
 
 onMounted(async () => {
-  await getAuthor()
+  await getData(route.query)
+
+  router.afterEach(async (to, from, failure) => {
+    await getData(to.query)
+  })
 })
 </script>
 
 <template>
   <div id="author-detail-page">
-    <main class="container" style="padding: 100px 0">
+    <main class="container d-flex flex-column gap-5" style="padding: 100px 0">
       <!-- Alert -->
       <div class="alert alert-dismissible alert-danger" v-show="errorMsg">
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         <span>{{ errorMsg }}</span>
       </div>
 
-      <div class="text-muted text-center">Author</div>
-      <div class="fw-bold fs-4 text-center mt-2">{{ author?.name }}</div>
-      <div class="text-center mt-2">
-        🗓️ {{ dayjs(author?.dob, 'YYYY-MM-DD').format('MMMM DD YYYY') }} | 🌍
-        {{ author?.nationality }}
+      <div class="placeholder-glow d-flex flex-column gap-1 align-items-center" v-if="loading && !data">
+        <div class="placeholder" style="height: 24px; width: 100px;"></div>
+        <div class="placeholder" style="height: 24px; width: 150px;"></div>
       </div>
 
-      <div class="d-flex flex-wrap gap-3 justify-content-center mt-4">
-        <NuxtLink
-          v-if="books"
-          v-for="(book, i) in books"
-          style="width: 265px; height: 330px; text-decoration: none"
-          :to="`/books/${book.slug}`"
-          :key="i"
-        >
-          <div class="card shadow-sm p-2">
-            <img
-              :src="book.cover_image"
-              onerror="this.onerror=null; this.src='/fallback_image.jpg'"
-              :style="{
-                height: '200px',
-                width: '100%',
-                objectFit: 'contain',
-              }"
-            />
-
-            <div class="card-body text-center d-flex flex-column justify-content-center gap-2">
-              <div class="text-muted line-clamp-1">by {{ book.author ? book.author.name : 'Unknown' }}</div>
-              <div class="fw-bold line-clamp-1">{{ book.title }}</div>
-              <div class="fw-bold text-success">
-                {{ toRupiah(book.price, { floatingPoint: 0 }) }}
-              </div>
-            </div>
-          </div>
-        </NuxtLink>
-
-        <div
-          v-if="!books"
-          v-for="(n, i) in 20"
-          :key="i"
-          style="width: 265px; height: 330px"
-          class="skeleton-box rounded"
-        ></div>
+      <div v-else>
+        <div class="text-muted text-center">Author</div>
+        <div class="fw-bold fs-4 text-center mt-2">{{ data?.author.name }}</div>
+        <div class="text-center mt-2">
+          🗓️ {{ dayjs(data?.author.dob, 'YYYY-MM-DD').format('MMMM DD YYYY') }} | 🌍
+          {{ data.author?.nationality }}
+        </div>
       </div>
+
+      <div class="d-flex flex-wrap gap-3 justify-content-center mt-4" v-if="!loading && data">
+        <BookCard v-for="(book, i) in data.books.data" :book="book" :key="i" />
+      </div>
+
+      <div class="placeholder-glow d-flex flex-wrap gap-3 justify-content-center mt-4" v-else>
+        <div v-for="(n, i) in 10" :key="i" style="width: 265px; height: 330px" class="placeholder rounded-1"></div>
+      </div>
+
+      <Pagination style="align-self: center;" :pagination-info="paginationInfo" :show-skeleton-if="loading && !data" />
     </main>
   </div>
 </template>

@@ -13,10 +13,8 @@ defineEmits(['edit', 'delete'])
       </div>
     </div>
 
-    <div
-      class="address-actions p-2 border-0 border-md-start ms-2 d-flex gap-2 align-items-center"
-      style="flex-shrink: 0"
-    >
+    <div class="address-actions p-2 border-0 border-md-start ms-2 d-flex gap-2 align-items-center"
+      style="flex-shrink: 0">
       <button class="btn btn-light btn-sm" @click="$emit('edit')">Edit</button>
       <button class="btn btn-danger btn-sm" @click="$emit('delete')">Delete</button>
     </div>

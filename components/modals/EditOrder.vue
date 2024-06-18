@@ -56,9 +56,9 @@ function removeOrderItem(index: number) {
 }
 
 async function getBooks() {
-  await useApiFetch('/sanctum/csrf-cookie')
+  await useApiFetch('/csrf-cookie')
 
-  const result = await useApiFetch('/api/v1/admin/books?forDropdown=true', {
+  const result = await useApiFetch('/admin/books?forDropdown=true', {
     method: 'GET',
     headers: {
       Accept: 'application/json',
@@ -74,9 +74,9 @@ async function getBooks() {
 }
 
 async function getCustomers() {
-  await useApiFetch('/sanctum/csrf-cookie')
+  await useApiFetch('/csrf-cookie')
 
-  const result = await useApiFetch('/api/v1/admin/customers?forDropdown=true', {
+  const result = await useApiFetch('/admin/customers?forDropdown=true', {
     headers: {
       Accept: 'application/json',
     },
@@ -91,7 +91,7 @@ async function getCustomers() {
 }
 
 async function submit() {
-  await useApiFetch('/sanctum/csrf-cookie')
+  await useApiFetch('/csrf-cookie')
 
   const form = {
     user_id: selectedCustomer.value?.id,
@@ -106,7 +106,7 @@ async function submit() {
     }),
   }
 
-  const result = await useApiFetch('/api/v1/admin/orders', {
+  const result = await useApiFetch('/admin/orders', {
     method: 'POST',
     body: form,
     headers: {
@@ -142,7 +142,7 @@ onMounted(async () => {
   <div class="custom-modal-backdrop">
     <div class="custom-modal">
       <div class="custom-modal__header">
-        <div>Add new order</div>
+        <div>Edit order</div>
         <button type="button" class="btn-close" aria-label="Close" @click="$emit('close')"></button>
       </div>
 
@@ -152,28 +152,16 @@ onMounted(async () => {
           <div class="text-muted text-sm text-center my-3" v-if="!orderItems.length">No Order Items</div>
 
           <!-- Order Item card -->
-          <div
-            class="card bg-secondary mb-3"
-            style="width: 100%; position: relative"
-            v-for="(item, index) in orderItems"
-            v-else
-          >
+          <div class="card bg-secondary mb-3" style="width: 100%; position: relative"
+            v-for="(item, index) in orderItems" v-else>
             <div class="card-body p-3">
               <div class="d-flex justify-content-between align-items-center gap-4">
                 <div>
-                  <img
-                    :src="item.book.cover_image"
-                    onerror="this.onerror=null; this.src='/fallback_image.jpg'"
-                    :alt="`${item.book.title}'s Cover Image`"
-                    style="max-height: 80px"
-                    v-if="item.book.cover_image"
-                  />
-                  <div
-                    v-else
-                    class="bg-light d-flex justify-content-center align-items-center"
-                    style="width: 53px; max-height: 80px; height: 80px"
-                  >
-                    <BookIcon class="text-black-50" />
+                  <img :src="item.book.cover_image" onerror="this.onerror=null; this.src='/fallback_image.jpg'"
+                    :alt="`${item.book.title}'s Cover Image`" style="max-height: 80px" v-if="item.book.cover_image" />
+                  <div v-else class="bg-light d-flex justify-content-center align-items-center"
+                    style="width: 53px; max-height: 80px; height: 80px">
+                    <Icon name="mdi:book" size="20" />
                   </div>
                 </div>
                 <div style="flex-grow: 1">
@@ -196,18 +184,14 @@ onMounted(async () => {
               </div>
             </div>
 
-            <button
-              class="btn btn-danger btn-sm"
-              :style="{
-                width: 'max-content',
-                height: 'max-content',
-                position: 'absolute',
-                right: '-10px',
-                top: '-10px',
-              }"
-              @click="removeOrderItem(index)"
-            >
-              <TrashIcon />
+            <button class="btn btn-danger btn-sm" :style="{
+              width: 'max-content',
+              height: 'max-content',
+              position: 'absolute',
+              right: '-10px',
+              top: '-10px',
+            }" @click="removeOrderItem(index)">
+              <Icon name="mdi:trash" size="20" />
             </button>
           </div>
 
@@ -224,20 +208,13 @@ onMounted(async () => {
         <div class="order-item-selector row row-cols-2">
           <!-- Cover image -->
           <div class="col-3">
-            <img
-              :src="selectedBook?.cover_image"
-              onerror="this.onerror=null; this.src='/fallback_image.jpg'"
-              :alt="`${selectedBook?.title}'s Cover Image`"
-              style="height: 100%; width: 100%; object-fit: contain"
-              v-if="selectedBook && selectedBook?.cover_image"
-            />
+            <img :src="selectedBook?.cover_image" onerror="this.onerror=null; this.src='/fallback_image.jpg'"
+              :alt="`${selectedBook?.title}'s Cover Image`" style="height: 100%; width: 100%; object-fit: contain"
+              v-if="selectedBook && selectedBook?.cover_image" />
 
-            <div
-              v-else
-              class="bg-light d-flex justify-content-center align-items-center"
-              style="width: 100%; height: 100%"
-            >
-              <BookIcon class="text-black-50" />
+            <div v-else class="bg-light d-flex justify-content-center align-items-center"
+              style="width: 100%; height: 100%">
+              <Icon name="mdi:book" size="20" />
             </div>
           </div>
 
@@ -280,22 +257,13 @@ onMounted(async () => {
               <div class="text-sm">Qty {{ `(${selectedBook?.stock_qty ?? 0})` }}</div>
               <div class="form-group">
                 <div class="input-group input-group-sm">
-                  <button
-                    class="btn btn-outline-success"
-                    type="button"
-                    id="button-decrease-book-count"
-                    :disabled="qtyCount === 1"
-                    @click="decrementQty"
-                  >
+                  <button class="btn btn-outline-success" type="button" id="button-decrease-book-count"
+                    :disabled="qtyCount === 1" @click="decrementQty">
                     -
                   </button>
                   <span class="border-top border-bottom text-sm px-3 d-flex align-items-center">{{ qtyCount }}</span>
-                  <button
-                    class="btn btn-outline-success"
-                    type="button"
-                    id="button-increase-book-count"
-                    @click="incrementQty"
-                  >
+                  <button class="btn btn-outline-success" type="button" id="button-increase-book-count"
+                    @click="incrementQty">
                     +
                   </button>
                 </div>
@@ -303,25 +271,16 @@ onMounted(async () => {
             </div>
 
             <div class="row gap-2 mt-3">
-              <button
-                type="button"
-                class="btn btn-outline-primary btn-sm col"
-                :disabled="!selectedBook"
-                @click="addOrderItem"
-              >
+              <button type="button" class="btn btn-outline-primary btn-sm col" :disabled="!selectedBook"
+                @click="addOrderItem">
                 Add
               </button>
 
-              <button
-                type="button"
-                class="btn btn-outline-danger btn-sm col-2"
-                @click="
-                  () => {
-                    selectedBook = undefined
-                    qtyCount = 1
-                  }
-                "
-              >
+              <button type="button" class="btn btn-outline-danger btn-sm col-2" @click="() => {
+                selectedBook = undefined
+                qtyCount = 1
+              }
+                ">
                 Reset
               </button>
             </div>
